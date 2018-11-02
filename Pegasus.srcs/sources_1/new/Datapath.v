@@ -26,6 +26,8 @@ module Datapath(
     wire write;
     wire jal;
     wire jalr;
+    wire auipc;
+    wire em_auipc;
     wire em_jal;
     wire em_jalr;
     wire em_lui;
@@ -56,6 +58,7 @@ module Datapath(
     wire [`Data_SIZE] em_pc4;
     wire [`Data_SIZE] em_rs1;
     wire [`Data_SIZE] em_rs2_muxout;
+    wire [`Data_SIZE] wb_auipcdata;
     wire [4:0] rs2in;
     //execmem
     wire forward_a;
@@ -82,9 +85,9 @@ module Datapath(
     //writeback
     wire [`Data_SIZE] rfwritedata;
     wire [`Data_SIZE] wb_pc4;
-    wire [`Data_SIZE] wb_immediate;
     wire [`Data_SIZE] wb_aluout;
     wire [`Data_SIZE] wb_memout;
+    wire wb_auipc;
     wire wbjal;
     wire wbjalr;
     wire wb_lui;
@@ -173,10 +176,11 @@ module Datapath(
         .branch(branch),
         .lui(lui),
         .jal(jal),
-        .jalr(jalr)
+        .jalr(jalr),
+        .auipc(auipc)
     );
     
-    assign write = (wb_reg_write_back | wb_mem_read) & ssignal; //was ~signal - added wb_mem_read
+    assign write = wb_reg_write_back & ssignal; //was ~signal - added wb_mem_read
     assign WB_addr = write? wb_rd_addr:inst[`IR_rs2];
     wire [4:0] rs1_addr;
     assign rs1_addr = inst[`IR_rs1];
@@ -201,26 +205,29 @@ module Datapath(
         .out(rs2_muxout)
         );  
 */
+
+
     ForwardingUnit fu(
         .opcode(inst[6:2]),
         .rs1(rs1_addr), 
         .rs2(inst[`IR_rs2]), 
         .rd(em_rd_addr), 
-        .reg_write(em_reg_write_back), 
+        .reg_write(em_reg_write_back|em_mem_read), 
         .forward_a(forward_a), 
         .forward_b(forward_b),  
         .forward_store(forward_store)
         );
         
-  //  assign Pipeline_1_RegIn = {jal, jalr, immediate[31:30],lui, inst[`IR_funct3],pc4, pc, immediate[29:0], mem_read, mem_write, reg_write_back, branch, unconditionalbranch, inst[`IR_rd], rs1, rs2_muxout, forward_a, forward_b, forward_store};
+  //  assign Pipeline_1_RegIn = {auipc ,jal, jalr, immediate[31:30],lui, inst[`IR_funct3],pc4, pc, immediate[29:0], mem_read, mem_write, reg_write_back, branch, unconditionalbranch, inst[`IR_rd], rs1, rs2_muxout, forward_a, forward_b, forward_store};
     
                             //  178  177  176:175            174  173:171,    170:139, 138:107, 106:77,         76,       75,         74,            73,        72,             71:67,  66:35,       34:3,     2,            1,          0
   
-     Register #(183) Pipeline_1 (
+     Register #(184) Pipeline_1 (
         .clk(clk),
         .rst(rstsync),
         .load(~ssignal), //CHECK THIS!!//stayed the same
-        .data_in({jal, 
+        .data_in({auipc,
+                  jal, 
                   jalr, 
                   immediate[31:30],
                   lui, 
@@ -240,7 +247,8 @@ module Datapath(
                   forward_b, 
                   forward_store,
                   alusel}),
-        .data_out({em_jal, 
+        .data_out({em_auipc,
+                   em_jal, 
                    em_jalr, 
                    em_immediate[31:30],
                    em_lui, 
@@ -338,24 +346,26 @@ module Datapath(
                             
                                //      rd_addr         
            //    137                          136                   135 :104                                         103:72                        71                        70                   69                    68:64                    63:32   31:0
-    Register #(138) Pipeline_2 (
+    Register #(139) Pipeline_2 (
         .clk(clk),
         .rst(rstsync),
         .load(~ssignal), //CHECK THIS!! //was signal
-        .data_in({em_lui,
+        .data_in({em_auipc,
+                  em_lui,
                   em_mem_read,
                   em_pc4,
-                  em_immediate,
+                  branch_PC,
                   em_reg_write_back,
                   em_branch,
                   em_unconditionalbranch, 
                   em_rd_addr, 
                   memout, 
                   aluout}),
-        .data_out({wb_lui,
+        .data_out({wb_auipc,
+                   wb_lui,
                    wb_mem_read,
                    wb_pc4,
-                   wb_immediate,
+                   wb_auipcdata,
                    wb_reg_write_back,
                    wb_branch,
                    wb_unconditionalbranch, 
@@ -373,7 +383,7 @@ module Datapath(
     //wbpc4 = pc4 = Pipeline_2_RegOut[135:104]
     //
 //    assign rfwritedata = wb_lui ? wb_immediate :  wb_unconditionalbranch ? wb_pc4 : wb_mem_read? wb_memout : wb_aluout;
-    assign rfwritedata = wb_unconditionalbranch ? wb_pc4 : wb_mem_read? wb_memout : wb_aluout;
+    assign rfwritedata = wb_unconditionalbranch ? wb_pc4 : wb_mem_read? wb_memout : wb_auipc ? wb_auipcdata : wb_aluout ;
 
     assign rs2in = write ? wb_rd_addr: inst[24:20];
 
