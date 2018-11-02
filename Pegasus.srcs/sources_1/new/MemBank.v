@@ -18,9 +18,14 @@ module MemBank(
         if (writereadbar)
             mem[address] <= datain;
         else 
-            dataout = mem[address];
+            dataout <= mem[address];
     end
     
    // assign dataout = !writereadbar ? mem[address] : `ZERO;
     
 endmodule
+
+
+
+
+

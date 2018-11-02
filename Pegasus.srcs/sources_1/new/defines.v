@@ -24,6 +24,8 @@
 `define     OPCODE_SYSTEM   5'b11_100 
 `define     OPCODE_Custom   5'b10_001
 
+`define     OPCODE_Load_F  7'b00_000_11
+
 `define     F3_ADD          3'b000
 `define     F3_SLL          3'b001
 `define     F3_SLT          3'b010
@@ -88,7 +90,7 @@
 `define     MUX4_SEL2       2'b10
 `define     RESET_BIT       1'b0
 `define     ZEROs_32        32'd0
-
+`define     SIXTY_FOUR      64
 //Faisal Added these
 //to be changed
 `define     ADDRESS_SIZE                4:0

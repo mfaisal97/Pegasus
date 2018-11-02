@@ -17,7 +17,7 @@ module BranchControlUnit(
 );
 
 always @(*) begin
-    if (ssignal) begin
+  //  if (ssignal) begin
         if(branch) begin
             case (func3)
                 `BR_BEQ     :   takebranch = zeroflag;
@@ -35,9 +35,9 @@ always @(*) begin
                  takebranch = `BRANCHTRUE;
         else takebranch = `BRANCHFALSE;
 
-    end
-    else 
-        takebranch = `BRANCHFALSE;
+ //   end
+   // else 
+   //     takebranch = `BRANCHFALSE;
 end
 
 endmodule

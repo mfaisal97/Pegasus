@@ -18,7 +18,14 @@ module ALU_Control (
                                         else 
                                             ALU_Sel = {Inst[14:12], `ZEROs_1}; 
             `OPCODE_Branch      :       ALU_Sel = {`F3_ADD, `ONEs_1};              
+            `OPCODE_LUI         :       ALU_Sel = `ALU_PASS;
             default             :       ALU_Sel = `DEFAULT_OP;
         endcase
     end
 endmodule
+
+
+
+
+
+

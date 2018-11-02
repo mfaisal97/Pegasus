@@ -40,7 +40,7 @@ module ALU (
         .ADD(AddSubALU), 
         .SUB(AddSubALU), 
         .SLL(SLL_ALU), 
-        .PASS(32'd0), 
+        .PASS(B), 
         .SLT(SLT_ALU), 
         .F(32'd0),
         .SLTU(SLTU_ALU), 

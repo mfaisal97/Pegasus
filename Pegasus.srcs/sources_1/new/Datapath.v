@@ -10,6 +10,7 @@ module Datapath(
     input rst
     );
     
+    
     //Instruction Fetch-Decode register
     //wires declaration
     wire ssignal;
@@ -35,9 +36,8 @@ module Datapath(
     wire em_unconditionalbranch; 
     wire em_forward_a;
     wire em_forward_b; 
-    wire em_forward_store;                    
-      
-                       
+    wire em_forward_store;          
+                                   
     wire [`Data_SIZE] pc;
     wire [`Data_SIZE] pc4;
     wire [`Data_SIZE] instregin;
@@ -47,6 +47,7 @@ module Datapath(
     wire [`Data_SIZE] rs1;
     wire [`Data_SIZE] rs2;
     wire [`Data_SIZE] rs2_muxout;
+    wire [`IR_rd] rd_addr;    
     wire [4:0] WB_addr;
     wire [`Data_SIZE] em_immediate;
     wire [4:0] em_rd_addr;
@@ -55,14 +56,12 @@ module Datapath(
     wire [`Data_SIZE] em_pc4;
     wire [`Data_SIZE] em_rs1;
     wire [`Data_SIZE] em_rs2_muxout;
-
+    wire [4:0] rs2in;
     //execmem
     wire forward_a;
     wire forward_b;
     wire forward_store;
-    
-
-    
+   
     wire [`Data_SIZE] aluout;
     wire [`Data_SIZE] aluin_1;
     wire [`Data_SIZE] aluin_2;
@@ -73,14 +72,11 @@ module Datapath(
     wire [`Data_SIZE] branch_PC;
     wire [`Data_SIZE] branch_Imm;
 
-
-    
     //aluflags
     wire s;
     wire v;
     wire c;
     wire zf;
-    
     wire branch_taken;
     
     //writeback
@@ -96,15 +92,10 @@ module Datapath(
     wire wb_reg_write_back;
     wire wb_branch;
     wire wb_unconditionalbranch;
-    wire [4:0] wb_rd_addr;
-                 
-              
-                  
-           
-                
+    wire [4:0] wb_rd_addr;               
     wire [`ALUSEL_SIZE] alusel;
-    
-
+    wire [`ALUSEL_SIZE] em_alusel;
+    wire [31:0] pipepc,pipepc4;
     
     //----------------- FIRST STAGE - FETCH-DECODE --------------------------------
     
@@ -136,7 +127,7 @@ module Datapath(
                               //      178:177     176  175:173,    172:141, 140:109, 108:79,         76,       75,         74,            73,        72,        71:67,  66:35,       34:3,     2,            1,          0
    
    
-    assign nextpc = branch_taken | em_jal ? branch_PC : (em_jalr? aluout : pc4); //2nd stage//check check
+    assign nextpc = em_jalr ? aluout : (branch_taken | em_jal? branch_PC: pc4); //2nd stage//check check
     //branch, unconditional
     assign pc4 = pc + `FOUR;
     assign unconditionalbranch = jal | jalr;
@@ -144,7 +135,7 @@ module Datapath(
     Register #(`THIRTY_TWO) pcreg (
         .clk(clk),
         .rst(rstsync),
-        .load(~ssignal),
+        .load(ssignal),//change to signal
         .data_in(nextpc), //next PC MUX NEEEDED
         .data_out(pc)
     );
@@ -158,7 +149,14 @@ module Datapath(
         .data_out(inst)
     );
         
-
+ Register #(`SIXTY_FOUR) pipelinepcreg (
+           .clk(clk),
+           .rst(rstsync),
+           .load(ssignal),//change to signal
+           .data_in({pc,pc4}), //next PC MUX NEEEDED
+           .data_out({pipepc,pipepc4})
+       );
+       
     
     rv32_ImmGen immgen(
         .IR(inst),
@@ -167,7 +165,7 @@ module Datapath(
     
     
     ControlUnit cunit(
-        .opcode(inst[`IR_opcode]),
+        .opcode({inst[`IR_opcode], inst[1:0]}),
         .alu_src_two_sel(alu_src_two_sel),
         .mem_read(mem_read),
         .mem_write(mem_write),
@@ -178,7 +176,7 @@ module Datapath(
         .jalr(jalr)
     );
     
-    assign write = wb_reg_write_back & ~ssignal;
+    assign write = (wb_reg_write_back | wb_mem_read) & ssignal; //was ~signal - added wb_mem_read
     assign WB_addr = write? wb_rd_addr:inst[`IR_rs2];
     wire [4:0] rs1_addr;
     assign rs1_addr = inst[`IR_rs1];
@@ -218,17 +216,17 @@ module Datapath(
     
                             //  178  177  176:175            174  173:171,    170:139, 138:107, 106:77,         76,       75,         74,            73,        72,             71:67,  66:35,       34:3,     2,            1,          0
   
-     Register #(179) Pipeline_1 (
+     Register #(183) Pipeline_1 (
         .clk(clk),
         .rst(rstsync),
-        .load(~ssignal), //CHECK THIS!!
+        .load(~ssignal), //CHECK THIS!!//stayed the same
         .data_in({jal, 
                   jalr, 
                   immediate[31:30],
                   lui, 
                   inst[`IR_funct3],
-                  pc4, 
-                  pc, 
+                  pipepc4, 
+                  pipepc, 
                   immediate[29:0],
                   mem_read, 
                   mem_write, 
@@ -240,7 +238,8 @@ module Datapath(
                   rs2_muxout, 
                   forward_a, 
                   forward_b, 
-                  forward_store}),
+                  forward_store,
+                  alusel}),
         .data_out({em_jal, 
                    em_jalr, 
                    em_immediate[31:30],
@@ -259,7 +258,8 @@ module Datapath(
                    em_rs2_muxout, 
                    em_forward_a, 
                    em_forward_b, 
-                   em_forward_store})
+                   em_forward_store,
+                   em_alusel})
     );
 
     MUX2x1 #(`THIRTY_TWO) forwardA  (
@@ -280,7 +280,7 @@ module Datapath(
     //----------------- SECOND STAGE - EXEC-MEM --------------------------------
      
     ALU alu(
-        .sel(alusel), 
+        .sel(em_alusel), 
         .A(aluin_1), 
         .B(aluin_2), 
         .out(aluout), 
@@ -318,11 +318,11 @@ module Datapath(
   // assign branch_taken = branch_taken_temp | branch_taken_temp2;
    
    
-    assign memaddressmuxout = (em_mem_read|em_mem_write)&ssignal ? aluout : pc; 
+    assign memaddressmuxout = (em_mem_read|em_mem_write)&ssignal ? aluout : pc; //was signal
     
     Memory memory(
         .clk(clk),
-        .slow_signal(~ssignal),
+        .slow_signal(ssignal),
         .address(memaddressmuxout),
         .data(meminputmuxout),
         .memread(em_mem_read),
@@ -341,7 +341,7 @@ module Datapath(
     Register #(138) Pipeline_2 (
         .clk(clk),
         .rst(rstsync),
-        .load(ssignal), //CHECK THIS!!
+        .load(~ssignal), //CHECK THIS!! //was signal
         .data_in({em_lui,
                   em_mem_read,
                   em_pc4,
@@ -364,13 +364,17 @@ module Datapath(
                    wb_aluout})
     );
   
+  //we dnt need lui or imm with us now bs keep it just n case
+  
     //----------------- THIRD STAGE - WB --------------------------------
     //wbjalr and jal = aluout = Pipeline_2_RegOut[31:0]
     //wblui = immediate = Pipeline_2_RegOut[103:72]
     //wbmemread = rd data = memout = Pipeline_2_RegOut[63:32]
     //wbpc4 = pc4 = Pipeline_2_RegOut[135:104]
     //
-    assign rfwritedata = wb_lui ? wb_immediate :  wb_unconditionalbranch ? wb_pc4 : wb_mem_read? wb_memout : wb_aluout;
+//    assign rfwritedata = wb_lui ? wb_immediate :  wb_unconditionalbranch ? wb_pc4 : wb_mem_read? wb_memout : wb_aluout;
+    assign rfwritedata = wb_unconditionalbranch ? wb_pc4 : wb_mem_read? wb_memout : wb_aluout;
+
     assign rs2in = write ? wb_rd_addr: inst[24:20];
 
     MUX2x1 #(`THIRTY_TWO) irmux(memout,`NOP,branch_taken,instregin); //FLUSH SIGNAL 
@@ -378,3 +382,5 @@ module Datapath(
 
     
 endmodule
+
+

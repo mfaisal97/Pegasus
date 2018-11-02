@@ -49,13 +49,13 @@ module MemControl(
 
 
     //32 bit data out from memory based on load instruction
-    assign dataout[7:0]= (lw | ((lh^lhu)&~address[1]) |     
-                        ((lb^lbu)&~address[1]&~address[0])) ? bankdata0 : 
-                        ((lb^lbu)&(~address[1]&address[0])) ? bankdata1 :
-                        ((lb^lbu)&address[1]&address[0]) ? bankdata3 :
+    assign dataout[7:0]= (lw | ((lh|lhu)&~address[1]) |     
+                        ((lb|lbu)&~address[1]&~address[0])) ? bankdata0 : 
+                        ((lb|lbu)&(~address[1]&address[0])) ? bankdata1 :
+                        ((lb|lbu)&address[1]&address[0]) ? bankdata3 :
                         bankdata2;
 
-    assign dataout[15:8]=lb ? {`EIGHT{signex}}: lbu ? `ZERO : (lh^lhu)&address[1] 
+    assign dataout[15:8]=lb ? {`EIGHT{signex}}: lbu ? `ZERO : (lh|lhu)&address[1] 
                         ? bankdata3 : bankdata1;  
     assign dataout[23:16]=lw ? bankdata2 : lb ? {`EIGHT{signex}}: (lh&~address[1]) ? 
                         {`EIGHT{bankdata1[7]}}: lh&address[1] ? {`EIGHT{bankdata3[7]}} : 

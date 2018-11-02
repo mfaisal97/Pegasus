@@ -11,19 +11,28 @@ module Memory(
     input memread,
     input memwrite,
     input [2:0] funct3,
-    output [31:0] dataout
+    output [31:0] dataout,
+    output reg [31:0] testingRead
     );
-
+    
+    reg a1, a0;
+    //reg [31:0] testingRead [0:4];
+    
+    always@(posedge clk) begin
+        a1 <= address[1];
+        a0 <= address[0];
+    end
+    
     wire lw, lh ,lhu, lb , lbu , sw, sh ,sb;
     
-    assign lw = funct3[1] & memread | ~slow_signal;
-    assign lh = slow_signal&(funct3[0]&memread&~funct3[2]);
-    assign lhu= slow_signal&(funct3[0]&memread&funct3[2]);
-    assign lb = slow_signal&(memread&~funct3[0]&~funct3[1]&~funct3[2]);
-    assign lbu= slow_signal&(memread&~funct3[0]&~funct3[1]&funct3[2]);
-    assign sh = slow_signal&(funct3[0]&memwrite);
-    assign sw = slow_signal&(funct3[1] & memwrite);
-    assign sb = slow_signal&(memwrite&~funct3[0]&~funct3[1]);
+    assign lw = funct3[1] & memread | slow_signal;
+    assign lh = ~slow_signal&(funct3[0]&memread&~funct3[2]);
+    assign lhu= ~slow_signal&(funct3[0]&memread&funct3[2]);
+    assign lb = ~slow_signal&(memread&~funct3[0]&~funct3[1]&~funct3[2]);
+    assign lbu= ~slow_signal&(memread&~funct3[0]&~funct3[1]&funct3[2]);
+    assign sh = ~slow_signal&(funct3[0]&memwrite);
+    assign sw = ~slow_signal&(funct3[1] & memwrite);
+    assign sb = ~slow_signal&(memwrite&~funct3[0]&~funct3[1]);
     
 
     wire [31:0] bankout;             //output of banks concatenation
@@ -33,7 +42,7 @@ module Memory(
     wire [7:0] bank2datain;
     wire [7:0] bank3datain;
 
-    MemControl MC(.address(address),.data(data),
+    MemControl MC(.address({address[31:2],a1,a0}),.data(data),
     .lw(lw),.lh(lh),.lhu(lhu),.lb(lb),.lbu(lbu),
     .sw(sw),.sh(sh),.sb(sb),.bankdata0(bankout[7:0]),
     .bankdata1(bankout[15:8]),.bankdata2(bankout[23:16]),
@@ -59,18 +68,22 @@ module Memory(
 
 
     initial 
-       // begin
-            /*$readmemh("./hex/test2.hex.txt", memt); //<-- why does cloudv save it as txt??
+        begin
+            $readmemh("./hex/test2.hex", memt); //<-- why does cloudv save it as txt??
             for(i=0;i<128;i = i+1) begin
                 Bank0.mem[i] = memt[i][31:24];
                 Bank1.mem[i] = memt[i][23:16];
                 Bank2.mem[i] = memt[i][15:8];
                 Bank3.mem[i] = memt[i][7:0];
             end
-            */
-     
+            testingRead = memt[0];
+   //         testingRead[1] = memt[4];
+     //       testingRead[2] = memt[8];
+       //     testingRead[3] = memt[12];
+        end
+ /*    
         begin
-            $readmemh("C:/Users/mfaisal/Pegasus/Resources/test2.txt", memt);
+            $readmemh("C:/Users/ahmed.leithym/Downloads/PROJ/test1.txt", memt);
             for(i=0;i<128;i = i+1) begin
                 Bank0.mem[i] = memt[i][31:24];
                 Bank1.mem[i] = memt[i][23:16];
@@ -78,7 +91,7 @@ module Memory(
                 Bank3.mem[i] = memt[i][7:0];
             end     
        end
- /*           
+            
             Bank0.mem[0] = 8'h93;
             Bank1.mem[0] = 8'h00;
             Bank2.mem[0] = 8'h70;
