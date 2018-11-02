@@ -10,7 +10,6 @@ module Datapath(
     input rst
     );
     
-    
     //Instruction Fetch-Decode register
     //wires declaration
     wire ssignal;
@@ -48,7 +47,6 @@ module Datapath(
     wire [`Data_SIZE] rs1;
     wire [`Data_SIZE] rs2;
     wire [`Data_SIZE] rs2_muxout;
-    wire [`IR_rd] rd_addr;    
     wire [4:0] WB_addr;
     wire [`Data_SIZE] em_immediate;
     wire [4:0] em_rd_addr;

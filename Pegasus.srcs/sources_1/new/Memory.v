@@ -70,7 +70,7 @@ module Memory(
             */
      
         begin
-            $readmemh("C:/Users/areeg.mostafa/Desktop/project_1_MS2/Project1_1_MS2.srcs/sources_1/new/test2.txt", memt);
+            $readmemh("C:/Users/mfaisal/Pegasus/Resources/test2.txt", memt);
             for(i=0;i<128;i = i+1) begin
                 Bank0.mem[i] = memt[i][31:24];
                 Bank1.mem[i] = memt[i][23:16];
