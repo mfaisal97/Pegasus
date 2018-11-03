@@ -19,14 +19,14 @@
 
 
 module ForwardingUnit (
-        input [6:2] opcode,
-        input [4:0] rs1, 
-        input [4:0] rs2, 
-        input [4:0] rd, 
+        input [`IR_opcode] opcode,
+        input [`ADDRESS_SIZE] rs1, 
+        input [`ADDRESS_SIZE] rs2, 
+        input [`ADDRESS_SIZE] rd, 
         input  reg_write, 
-        output reg [0:0] forward_a, 
-        output reg [0:0] forward_b,  
-        output reg [0:0] forward_store
+        output reg forward_a, 
+        output reg forward_b,  
+        output reg forward_store
         );
     always @(*) begin
         case(opcode)
