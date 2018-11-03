@@ -2,13 +2,15 @@
 // author: @melodyg
 /*******************************************************************
 *
-* Module: module_name.v
-* Project: Project_Name
-* Author: name and email
-* Description: put your description here
+* Module: ALU.v
+* Project: Pegasus
+* Author: Arig Mostafa, areeg.mostafa@aucegypt.edu
+* Description: This module represents the Arithmetic Logic Unit of our CPU 
+*               that is the major component of the execute stage. 
+*               It supports all the instructions of RISC-V32I
 *
 * Change history: 01/01/17 – Did something
-* 10/29/17 – Did something else
+*                 10/29/17 – Did something else
 *
 **********************************************************************/
 `timescale 1ns/1ns
