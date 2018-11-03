@@ -12,8 +12,8 @@
 `include "defines.v"
 
 module rv32_ImmGen (
-    input  wire [31:0]  IR,
-    output reg  [31:0]  Imm
+	input  wire [`RREGISTERS_RANGE]  IR,
+	output reg  [`RREGISTERS_RANGE]  Imm
 );
 
 always @(*) begin
