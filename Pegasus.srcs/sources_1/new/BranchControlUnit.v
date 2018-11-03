@@ -23,7 +23,7 @@ module BranchControlUnit(
     input cout,
     input signbit,
     input overflow,
-    output reg [0:0] takebranch
+    output reg takebranch
 );
 
 always @(*) begin
