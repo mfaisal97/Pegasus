@@ -24,7 +24,7 @@
 // to solve problem with beq, just make use of the and module to eval MAGICBOOL
 
 module ControlUnit (
-    input [6:0] opcode,
+    input [`IR_full_opcode] opcode,
     output alu_src_two_sel,
     output mem_read,
     output mem_write,
