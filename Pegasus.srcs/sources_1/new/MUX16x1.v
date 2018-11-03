@@ -2,10 +2,11 @@
 // author: @melodyg
 /*******************************************************************
 *
-* Module: module_name.v
-* Project: Project_Name
-* Author: name and email
-* Description: put your description here
+* Module: MUX16x1.v
+* Project: Pegasus
+* Author: Arig Mostafa, areeg.mostafa@aucegypt.edu
+* Description: This module represents the Multiplexer needed to choose
+ *             the ALU output based on the instruction's needs
 *
 * Change history: 01/01/17 – Did something
 * 10/29/17 – Did something else
