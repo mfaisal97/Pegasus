@@ -11,31 +11,35 @@
 *
 * Change history: 01/01/17 – Did something
 *                 10/29/17 – Did something else
-*
+*                 11/01/18 – I added the pass signal instead of default 
+*                            0 as I finally understood why its needed for 
+*                            LUI instruction.
+*                 11/03/18 – I'm cleaning up our code with constants and 
+*                            making sure we are following the coding guidelines
 **********************************************************************/
 `timescale 1ns/1ns
 `include "defines.v"
 
 module ALU (
-    input [3:0] sel, 
-    input [31:0] A, 
-    input [31:0] B, 
-    output [31:0] out, 
+    input [`ALUSEL_SIZE] sel, 
+    input [`DATA_SIZE] A, 
+    input [`DATA_SIZE] B, 
+    output [`DATA_SIZE] out, 
     output ZeroFlag,
     output Cout,
     output SignedBit,
     output Overflow
     );
-    wire [31:0] AddSubALU;
-    wire [31:0] AndALU;
-    wire [31:0] OrALU;
-    wire [31:0] XorALU;
-    wire [31:0] SLL_ALU;
-    wire [31:0] SRL_ALU; 
-    wire [31:0] SRA_ALU;
-    wire [31:0] SLT_ALU;
-    wire [31:0] SLTU_ALU;
-    wire [31:0] B_Comp;
+    wire [`DATA_SIZE] AddSubALU;
+    wire [`DATA_SIZE] AndALU;
+    wire [`DATA_SIZE] OrALU;
+    wire [`DATA_SIZE] XorALU;
+    wire [`DATA_SIZE] SLL_ALU;
+    wire [`DATA_SIZE] SRL_ALU; 
+    wire [`DATA_SIZE] SRA_ALU;
+    wire [`DATA_SIZE] SLT_ALU;
+    wire [`DATA_SIZE] SLTU_ALU;
+    wire [`DATA_SIZE] B_Comp;
     
     assign B_Comp = ~B;
     
@@ -55,17 +59,17 @@ module ALU (
         .SLL(SLL_ALU), 
         .PASS(B), 
         .SLT(SLT_ALU), 
-        .F(32'd0),
+        .F(`ZERO_32),
         .SLTU(SLTU_ALU), 
-        .H(32'd0), 
+        .H(`ZERO_32), 
         .XOR(XorALU), 
-        .J(32'd0), 
+        .J(`ZERO_32), 
         .SRL(SRL_ALU), 
         .SRA(SRA_ALU), 
         .OR_OP(OrALU),
-        .N(32'd0), 
+        .N(`ZERO_32), 
         .AND_OP(AndALU), 
-        .P(32'd0), 
+        .P(`ZERO_32), 
         .sel(sel), 
         .out(out)
         );
