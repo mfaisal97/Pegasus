@@ -1,6 +1,16 @@
 // file: RegisterFile.v
 // author: @mfaisal
-
+/*******************************************************************
+*
+* Module: module_name.v
+* Project: Project_Name
+* Author: name and email
+* Description: put your description here
+*
+* Change history: 01/01/17 – Did something
+* 10/29/17 – Did something else
+*
+**********************************************************************/
 `timescale 1ns / 1ps
 `include "defines.v"
 
