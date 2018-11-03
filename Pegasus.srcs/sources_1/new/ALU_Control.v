@@ -2,13 +2,16 @@
 // author: @melodyg
 /*******************************************************************
 *
-* Module: module_name.v
-* Project: Project_Name
-* Author: name and email
-* Description: put your description here
-*
+* Module: ALU_Control.v
+* Project: Pegasus
+* Author: Arig Mostafa, areeg.mostafa@aucegypt.edu
+* Description: This module represents the ALU Control Unit of our ALU 
+*               as it directs the multiplexer of the ALU output to 
+*               which operation output this instruction may need 
+*               (+,-,...etc.)
+* 
 * Change history: 01/01/17 – Did something
-* 10/29/17 – Did something else
+*                 10/29/17 – Did something else
 *
 **********************************************************************/
 `timescale 1ns/1ns
