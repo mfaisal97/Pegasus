@@ -46,12 +46,12 @@ module ALU (
     assign AndALU = A & B;
     assign OrALU = A | B;
     assign XorALU = A ^ B;
-    assign SLL_ALU = A << B[4:0];
-    assign SRL_ALU = A >> B[4:0];
-    assign SRA_ALU = $signed($signed(A) >>> B[4:0]);
-    assign SLT_ALU = {`ZEROs_31, $signed(A) < $signed(B)};
-    assign SLTU_ALU = {`ZEROs_31, A < B};
-    assign {Cout, AddSubALU} = sel[0]? (A + B_Comp + `ONEs_1) : A + B;
+    assign SLL_ALU = A << B[`_2ND_OPERAND_LOWER_5];
+    assign SRL_ALU = A >> B[`_2ND_OPERAND_LOWER_5];
+    assign SRA_ALU = $signed($signed(A) >>> B[`_2ND_OPERAND_LOWER_5]);
+    assign SLT_ALU = {`ZERO_31, $signed(A) < $signed(B)};
+    assign SLTU_ALU = {`ZERO_31, A < B};
+    assign {Cout, AddSubALU} = sel[`ZERO_1]? (A + B_Comp + `ONE_1) : A + B;
     
     MUX16x1 Multiplexer (
         .ADD(AddSubALU), 
@@ -75,6 +75,6 @@ module ALU (
         );
   
     assign ZeroFlag = ~|AddSubALU;
-    assign SignedBit = AddSubALU[31];
-    assign Overflow = A[31]^B_Comp[31]^AddSubALU[31]^Cout;
+    assign SignedBit = AddSubALU[`LAST_BIT];
+    assign Overflow = A[`LAST_BIT]^B_Comp[`LAST_BIT]^AddSubALU[`LAST_BIT]^Cout;
 endmodule
