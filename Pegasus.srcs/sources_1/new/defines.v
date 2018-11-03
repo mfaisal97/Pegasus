@@ -1,6 +1,16 @@
 // file: defines.v
 // author: @shalan
-
+/*******************************************************************
+*
+* Module: module_name.v
+* Project: Project_Name
+* Author: name and email
+* Description: put your description here
+*
+* Change history: 01/01/17 – Did something
+* 10/29/17 – Did something else
+*
+**********************************************************************/
 `define     IR_rs1          19:15
 `define     IR_rs2          24:20
 `define     IR_rd           11:7
