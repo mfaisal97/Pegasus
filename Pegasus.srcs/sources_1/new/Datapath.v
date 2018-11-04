@@ -9,8 +9,8 @@
 *         Muhammad Faisal, mfaisal@aucegypt.edu
 *
 * Description: put your description here
-* Change history: 01/01/17 – Did something
-* 10/29/17 – Did something else
+* Change history: 01/01/17 â€“ Did something
+* 10/29/17 â€“ Did something else
 *
 **********************************************************************/
 `include "defines.v"
@@ -52,40 +52,40 @@ module Datapath(
     wire em_forward_b; 
     wire em_forward_store;          
                                    
-    wire [`Data_SIZE] pc;
-    wire [`Data_SIZE] pc4;
-    wire [`Data_SIZE] instregin;
-    wire [`Data_SIZE] nextpc;
-    wire [`Data_SIZE] immediate;
-    wire [`Data_SIZE] inst;
-    wire [`Data_SIZE] rs1;
-    wire [`Data_SIZE] rs2;
-    wire [`Data_SIZE] rs2_muxout;
+    wire [`DATA_SIZE] pc;
+    wire [`DATA_SIZE] pc4;
+    wire [`DATA_SIZE] instregin;
+    wire [`DATA_SIZE] nextpc;
+    wire [`DATA_SIZE] immediate;
+    wire [`DATA_SIZE] inst;
+    wire [`DATA_SIZE] rs1;
+    wire [`DATA_SIZE] rs2;
+    wire [`DATA_SIZE] rs2_muxout;
     wire [`IR_rd] rd_addr;    
     wire [4:0] WB_addr;
-    wire [`Data_SIZE] em_immediate;
+    wire [`DATA_SIZE] em_immediate;
     wire [4:0] em_rd_addr;
     wire [2:0] em_func3;
-    wire [`Data_SIZE] em_pc;
-    wire [`Data_SIZE] em_pc4;
-    wire [`Data_SIZE] em_rs1;
-    wire [`Data_SIZE] em_rs2_muxout;
-    wire [`Data_SIZE] wb_auipcdata;
+    wire [`DATA_SIZE] em_pc;
+    wire [`DATA_SIZE] em_pc4;
+    wire [`DATA_SIZE] em_rs1;
+    wire [`DATA_SIZE] em_rs2_muxout;
+    wire [`DATA_SIZE] wb_auipcdata;
     wire [4:0] rs2in;
     //execmem
     wire forward_a;
     wire forward_b;
     wire forward_store;
    
-    wire [`Data_SIZE] aluout;
-    wire [`Data_SIZE] aluin_1;
-    wire [`Data_SIZE] aluin_2;
+    wire [`DATA_SIZE] aluout;
+    wire [`DATA_SIZE] aluin_1;
+    wire [`DATA_SIZE] aluin_2;
     
-    wire [`Data_SIZE] memout; //rd_data
-    wire [`Data_SIZE] memaddressmuxout;
-    wire [`Data_SIZE] meminputmuxout;
-    wire [`Data_SIZE] branch_PC;
-    wire [`Data_SIZE] branch_Imm;
+    wire [`DATA_SIZE] memout; //rd_data
+    wire [`DATA_SIZE] memaddressmuxout;
+    wire [`DATA_SIZE] meminputmuxout;
+    wire [`DATA_SIZE] branch_PC;
+    wire [`DATA_SIZE] branch_Imm;
 
     //aluflags
     wire s;
@@ -95,10 +95,10 @@ module Datapath(
     wire branch_taken;
     
     //writeback
-    wire [`Data_SIZE] rfwritedata;
-    wire [`Data_SIZE] wb_pc4;
-    wire [`Data_SIZE] wb_aluout;
-    wire [`Data_SIZE] wb_memout;
+    wire [`DATA_SIZE] rfwritedata;
+    wire [`DATA_SIZE] wb_pc4;
+    wire [`DATA_SIZE] wb_aluout;
+    wire [`DATA_SIZE] wb_memout;
     wire wb_auipc;
     wire wbjal;
     wire wbjalr;
@@ -110,7 +110,7 @@ module Datapath(
     wire [4:0] wb_rd_addr;               
     wire [`ALUSEL_SIZE] alusel;
     wire [`ALUSEL_SIZE] em_alusel;
-    wire [31:0] pipepc,pipepc4;
+    wire [`DATA_SIZE] pipepc,pipepc4;
     
     //----------------- FIRST STAGE - FETCH-DECODE --------------------------------
     
