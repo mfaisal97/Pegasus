@@ -7,8 +7,8 @@
 * Author: name and email
 * Description: put your description here
 *
-* Change history: 01/01/17 – Did something
-* 10/29/17 – Did something else
+* Change history: 01/01/17 â€“ Did something
+* 10/29/17 â€“ Did something else
 *
 **********************************************************************/
 `timescale 1ns / 1ps
@@ -18,22 +18,22 @@ module RegisterFile(
     input clk,
     input rst,
     input reg_write,
-    input [`Data_SIZE] write_data,
+    input [`DATA_SIZE] write_data,
     input [`ADDRESS_SIZE] port_one_address,
     input [`ADDRESS_SIZE] port_two_address,
-    output [`Data_SIZE] port_one_data,
-    output [`Data_SIZE] port_two_data
+    output [`DATA_SIZE] port_one_data,
+    output [`DATA_SIZE] port_two_data
     );
 
-    wire [`RREGISTERS_RANGE] registers_enablers;
-    wire [`Data_SIZE] data [`RREGISTERS_RANGE];
+    wire [`REGISTERS_RANGE] registers_enablers;
+    wire [`DATA_SIZE] data [`REGISTERS_RANGE];
 
     assign registers_enablers = reg_write ? (`WRITE_FIRST << port_two_address) : `WRITE_NONE;
     Register #(`THIRTY_TWO) r0(
                 .clk(clk),
                 .rst(rst),
-                .load(`ONEs_1),
-                .data_in(`ZEROs_32),
+                .load(`ONE_1),
+                .data_in(`ZERO_32),
                 .data_out(data[0])
                 );
     generate    
