@@ -13,6 +13,11 @@
 `define     COMPRESSED_ADDRESS_RS2_REDUCED                      4:2
 `define     COMPRESSED_ADDRESS_RS2                              6:2
 
+`define     COMPRESSED_ADDRESS_QUADRANT                         1:0
+`define     COMPRESSED_ADDRESS_FUNC3                            15:13
+`define     COMPRESSED_ADDRESS_FUNC_11_10                       11:10
+`define     COMPRESSED_ADDRESS_FUNC_12                          12
+`define     COMPRESSED_ADDRESS_FUNC_6_5                         6:5
 
 //INSTRUCTIONS SIZES
 `define     COMPRESSED_INST_SIZE                                15:0
