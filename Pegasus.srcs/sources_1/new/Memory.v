@@ -1,5 +1,16 @@
 // file: Memory.v
 // author: @ahmedleithy
+/*******************************************************************
+*
+* Module: module_name.v
+* Project: Project_Name
+* Author: name and email
+* Description: put your description here
+*
+* Change history: 01/01/17 – Did something
+* 10/29/17 – Did something else
+*
+**********************************************************************/
 `timescale 1ns/1ns
 `include "defines.v"
 
@@ -30,9 +41,9 @@ module Memory(
     assign lhu= ~slow_signal&(funct3[0]&memread&funct3[2]);
     assign lb = ~slow_signal&(memread&~funct3[0]&~funct3[1]&~funct3[2]);
     assign lbu= ~slow_signal&(memread&~funct3[0]&~funct3[1]&funct3[2]);
-    assign sh = ~slow_signal&(funct3[0]&memwrite);
-    assign sw = ~slow_signal&(funct3[1] & memwrite);
-    assign sb = ~slow_signal&(memwrite&~funct3[0]&~funct3[1]);
+    assign sh = slow_signal&(funct3[0]&memwrite);
+    assign sw = slow_signal&(funct3[1] & memwrite);
+    assign sb = slow_signal&(memwrite&~funct3[0]&~funct3[1]);
     
 
     wire [31:0] bankout;             //output of banks concatenation
@@ -66,7 +77,7 @@ module Memory(
     reg [31:0] memt [0:127];
     integer i;
 
-
+ /*
     initial 
         begin
             $readmemh("C:/Users/mfaisal/Pegasus/Resources/test1.txt", memt); //<-- why does cloudv save it as txt??
@@ -81,9 +92,10 @@ module Memory(
      //       testingRead[2] = memt[8];
        //     testingRead[3] = memt[12];
         end
- /*    
+  */
+  initial  
         begin
-            $readmemh("C:/Users/ahmed.leithym/Downloads/PROJ/test1.txt", memt);
+            $readmemh("C:/Users/ahmed.leithym/Downloads/Project2-11/Pegasus/Resources/test1.txt", memt);
             for(i=0;i<128;i = i+1) begin
                 Bank0.mem[i] = memt[i][31:24];
                 Bank1.mem[i] = memt[i][23:16];
@@ -91,7 +103,8 @@ module Memory(
                 Bank3.mem[i] = memt[i][7:0];
             end     
        end
-            
+         
+         /*   
             Bank0.mem[0] = 8'h93;
             Bank1.mem[0] = 8'h00;
             Bank2.mem[0] = 8'h70;

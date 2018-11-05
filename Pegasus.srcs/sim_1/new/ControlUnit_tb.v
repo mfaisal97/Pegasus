@@ -1,3 +1,4 @@
+/*
 // file: ControlUnit_tb.v
 // author: @mfaisal
 // Testbench for ControlUnit
@@ -24,6 +25,7 @@ module ControlUnit_tb;
 	wire lui;
 	wire jal;
 	wire jalr;
+	wire auipc;
 
 
 	//Instantiation of Unit Under Test
@@ -36,7 +38,8 @@ module ControlUnit_tb;
 		.branch(branch),
 		.lui(lui),
 		.jal(jal),
-		.jalr(jalr)
+		.jalr(jalr),
+		.auipc(auipc)
 	);
 
 
@@ -57,3 +60,4 @@ module ControlUnit_tb;
     end
 
 endmodule
+*/

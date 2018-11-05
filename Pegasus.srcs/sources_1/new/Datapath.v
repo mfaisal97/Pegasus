@@ -1,6 +1,18 @@
 // file: Datapath.v
 // author: @ahmedleithy
-
+/*******************************************************************
+*
+* Module: Datapath.v
+* Project: Project_Name
+* Author: Ahmed Leithy,    ahmed.leithym@aucegypt.edu         
+*         Arig Mostafa,    areeg.mostafa@aucegypt.edu
+*         Muhammad Faisal, mfaisal@aucegypt.edu
+*
+* Description: put your description here
+* Change history: 01/01/17 â€“ Did something
+* 10/29/17 â€“ Did something else
+*
+**********************************************************************/
 `include "defines.v"
 
 `timescale 1ns/1ns
@@ -26,6 +38,8 @@ module Datapath(
     wire write;
     wire jal;
     wire jalr;
+    wire auipc;
+    wire em_auipc;
     wire em_jal;
     wire em_jalr;
     wire em_lui;
@@ -38,39 +52,40 @@ module Datapath(
     wire em_forward_b; 
     wire em_forward_store;          
                                    
-    wire [`Data_SIZE] pc;
-    wire [`Data_SIZE] pc4;
-    wire [`Data_SIZE] instregin;
-    wire [`Data_SIZE] nextpc;
-    wire [`Data_SIZE] immediate;
-    wire [`Data_SIZE] inst;
-    wire [`Data_SIZE] rs1;
-    wire [`Data_SIZE] rs2;
-    wire [`Data_SIZE] rs2_muxout;
+    wire [`DATA_SIZE] pc;
+    wire [`DATA_SIZE] pc4;
+    wire [`DATA_SIZE] instregin;
+    wire [`DATA_SIZE] nextpc;
+    wire [`DATA_SIZE] immediate;
+    wire [`DATA_SIZE] inst;
+    wire [`DATA_SIZE] rs1;
+    wire [`DATA_SIZE] rs2;
+    wire [`DATA_SIZE] rs2_muxout;
     wire [`IR_rd] rd_addr;    
     wire [4:0] WB_addr;
-    wire [`Data_SIZE] em_immediate;
+    wire [`DATA_SIZE] em_immediate;
     wire [4:0] em_rd_addr;
     wire [2:0] em_func3;
-    wire [`Data_SIZE] em_pc;
-    wire [`Data_SIZE] em_pc4;
-    wire [`Data_SIZE] em_rs1;
-    wire [`Data_SIZE] em_rs2_muxout;
+    wire [`DATA_SIZE] em_pc;
+    wire [`DATA_SIZE] em_pc4;
+    wire [`DATA_SIZE] em_rs1;
+    wire [`DATA_SIZE] em_rs2_muxout;
+    wire [`DATA_SIZE] wb_auipcdata;
     wire [4:0] rs2in;
     //execmem
     wire forward_a;
     wire forward_b;
     wire forward_store;
    
-    wire [`Data_SIZE] aluout;
-    wire [`Data_SIZE] aluin_1;
-    wire [`Data_SIZE] aluin_2;
+    wire [`DATA_SIZE] aluout;
+    wire [`DATA_SIZE] aluin_1;
+    wire [`DATA_SIZE] aluin_2;
     
-    wire [`Data_SIZE] memout; //rd_data
-    wire [`Data_SIZE] memaddressmuxout;
-    wire [`Data_SIZE] meminputmuxout;
-    wire [`Data_SIZE] branch_PC;
-    wire [`Data_SIZE] branch_Imm;
+    wire [`DATA_SIZE] memout; //rd_data
+    wire [`DATA_SIZE] memaddressmuxout;
+    wire [`DATA_SIZE] meminputmuxout;
+    wire [`DATA_SIZE] branch_PC;
+    wire [`DATA_SIZE] branch_Imm;
 
     //aluflags
     wire s;
@@ -80,11 +95,11 @@ module Datapath(
     wire branch_taken;
     
     //writeback
-    wire [`Data_SIZE] rfwritedata;
-    wire [`Data_SIZE] wb_pc4;
-    wire [`Data_SIZE] wb_immediate;
-    wire [`Data_SIZE] wb_aluout;
-    wire [`Data_SIZE] wb_memout;
+    wire [`DATA_SIZE] rfwritedata;
+    wire [`DATA_SIZE] wb_pc4;
+    wire [`DATA_SIZE] wb_aluout;
+    wire [`DATA_SIZE] wb_memout;
+    wire wb_auipc;
     wire wbjal;
     wire wbjalr;
     wire wb_lui;
@@ -95,7 +110,7 @@ module Datapath(
     wire [4:0] wb_rd_addr;               
     wire [`ALUSEL_SIZE] alusel;
     wire [`ALUSEL_SIZE] em_alusel;
-    wire [31:0] pipepc,pipepc4;
+    wire [`DATA_SIZE] pipepc,pipepc4;
     
     //----------------- FIRST STAGE - FETCH-DECODE --------------------------------
     
@@ -173,10 +188,11 @@ module Datapath(
         .branch(branch),
         .lui(lui),
         .jal(jal),
-        .jalr(jalr)
+        .jalr(jalr),
+        .auipc(auipc)
     );
     
-    assign write = (wb_reg_write_back | wb_mem_read) & ssignal; //was ~signal - added wb_mem_read
+    assign write = wb_reg_write_back & ssignal; //was ~signal - added wb_mem_read
     assign WB_addr = write? wb_rd_addr:inst[`IR_rs2];
     wire [4:0] rs1_addr;
     assign rs1_addr = inst[`IR_rs1];
@@ -201,26 +217,29 @@ module Datapath(
         .out(rs2_muxout)
         );  
 */
+
+
     ForwardingUnit fu(
         .opcode(inst[6:2]),
         .rs1(rs1_addr), 
         .rs2(inst[`IR_rs2]), 
         .rd(em_rd_addr), 
-        .reg_write(em_reg_write_back), 
+        .reg_write(em_reg_write_back|em_mem_read), 
         .forward_a(forward_a), 
         .forward_b(forward_b),  
         .forward_store(forward_store)
         );
         
-  //  assign Pipeline_1_RegIn = {jal, jalr, immediate[31:30],lui, inst[`IR_funct3],pc4, pc, immediate[29:0], mem_read, mem_write, reg_write_back, branch, unconditionalbranch, inst[`IR_rd], rs1, rs2_muxout, forward_a, forward_b, forward_store};
+  //  assign Pipeline_1_RegIn = {auipc ,jal, jalr, immediate[31:30],lui, inst[`IR_funct3],pc4, pc, immediate[29:0], mem_read, mem_write, reg_write_back, branch, unconditionalbranch, inst[`IR_rd], rs1, rs2_muxout, forward_a, forward_b, forward_store};
     
                             //  178  177  176:175            174  173:171,    170:139, 138:107, 106:77,         76,       75,         74,            73,        72,             71:67,  66:35,       34:3,     2,            1,          0
   
-     Register #(183) Pipeline_1 (
+     Register #(184) Pipeline_1 (
         .clk(clk),
         .rst(rstsync),
         .load(~ssignal), //CHECK THIS!!//stayed the same
-        .data_in({jal, 
+        .data_in({auipc,
+                  jal, 
                   jalr, 
                   immediate[31:30],
                   lui, 
@@ -240,7 +259,8 @@ module Datapath(
                   forward_b, 
                   forward_store,
                   alusel}),
-        .data_out({em_jal, 
+        .data_out({em_auipc,
+                   em_jal, 
                    em_jalr, 
                    em_immediate[31:30],
                    em_lui, 
@@ -338,24 +358,26 @@ module Datapath(
                             
                                //      rd_addr         
            //    137                          136                   135 :104                                         103:72                        71                        70                   69                    68:64                    63:32   31:0
-    Register #(138) Pipeline_2 (
+    Register #(139) Pipeline_2 (
         .clk(clk),
         .rst(rstsync),
         .load(~ssignal), //CHECK THIS!! //was signal
-        .data_in({em_lui,
+        .data_in({em_auipc,
+                  em_lui,
                   em_mem_read,
                   em_pc4,
-                  em_immediate,
+                  branch_PC,
                   em_reg_write_back,
                   em_branch,
                   em_unconditionalbranch, 
                   em_rd_addr, 
                   memout, 
                   aluout}),
-        .data_out({wb_lui,
+        .data_out({wb_auipc,
+                   wb_lui,
                    wb_mem_read,
                    wb_pc4,
-                   wb_immediate,
+                   wb_auipcdata,
                    wb_reg_write_back,
                    wb_branch,
                    wb_unconditionalbranch, 
@@ -373,7 +395,7 @@ module Datapath(
     //wbpc4 = pc4 = Pipeline_2_RegOut[135:104]
     //
 //    assign rfwritedata = wb_lui ? wb_immediate :  wb_unconditionalbranch ? wb_pc4 : wb_mem_read? wb_memout : wb_aluout;
-    assign rfwritedata = wb_unconditionalbranch ? wb_pc4 : wb_mem_read? wb_memout : wb_aluout;
+    assign rfwritedata = wb_unconditionalbranch ? wb_pc4 : wb_mem_read? wb_memout : wb_auipc ? wb_auipcdata : wb_aluout ;
 
     assign rs2in = write ? wb_rd_addr: inst[24:20];
 

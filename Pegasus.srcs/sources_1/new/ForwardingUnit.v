@@ -1,18 +1,32 @@
 // file: ForwardingUnit.v
 // author: @melodyg
+/*******************************************************************
+*
+* Module: ForwardingUnit.v
+* Project: Pegasus
+* Author: Arig Mostafa, areeg.mostafa@aucegypt.edu
+* Description: This module represents the Forwarding Unit that deals
+*              with data hazards that our datapath may face depending
+*              on the current and previous instructions as well as 
+*              the instructions' types and use of inputs and outputs
+*
+* Change history: 01/01/17 – Did something
+*                 10/29/17 – Did something else
+*
+**********************************************************************/
 `timescale 1ns / 1ps
 `include "defines.v"
 
 
 module ForwardingUnit (
-        input [6:2] opcode,
-        input [4:0] rs1, 
-        input [4:0] rs2, 
-        input [4:0] rd, 
+        input [`IR_opcode] opcode,
+        input [`ADDRESS_SIZE] rs1, 
+        input [`ADDRESS_SIZE] rs2, 
+        input [`ADDRESS_SIZE] rd, 
         input  reg_write, 
-        output reg [0:0] forward_a, 
-        output reg [0:0] forward_b,  
-        output reg [0:0] forward_store
+        output reg forward_a, 
+        output reg forward_b,  
+        output reg forward_store
         );
     always @(*) begin
         case(opcode)

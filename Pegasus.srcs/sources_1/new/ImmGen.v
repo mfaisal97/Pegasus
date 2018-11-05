@@ -1,9 +1,19 @@
+/*******************************************************************
+*
+* Module: rv32_ImmGen.v
+* Project: Pegasus
+* Author: Mohamed Shalan, mshalan@aucegypt.edu
+* Description: Immediate generator module depending on the type of instruction
+*
+* Change history: ------
+*
+**********************************************************************/
 `timescale 1ns/1ns
 `include "defines.v"
 
 module rv32_ImmGen (
-    input  wire [31:0]  IR,
-    output reg  [31:0]  Imm
+	input  wire [`REGISTERS_RANGE]  IR,
+	output reg  [`REGISTERS_RANGE]  Imm
 );
 
 always @(*) begin

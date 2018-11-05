@@ -1,6 +1,16 @@
 // file: BranchControlUnit.v
 // author: @mfaisal
-
+/*******************************************************************
+*
+* Module: module_name.v
+* Project: Project_Name
+* Author: name and email
+* Description: put your description here
+*
+* Change history: 01/01/17 – Did something
+* 10/29/17 – Did something else
+*
+**********************************************************************/
 `timescale 1ns/1ns
 `include "defines.v"
 
@@ -13,7 +23,7 @@ module BranchControlUnit(
     input cout,
     input signbit,
     input overflow,
-    output reg [0:0] takebranch
+    output reg takebranch
 );
 
 always @(*) begin

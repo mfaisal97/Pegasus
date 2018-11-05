@@ -1,6 +1,17 @@
 // file: MUX16x1.v
 // author: @melodyg
-
+/*******************************************************************
+*
+* Module: MUX16x1.v
+* Project: Pegasus
+* Author: Arig Mostafa, areeg.mostafa@aucegypt.edu
+* Description: This module represents the Multiplexer needed to choose
+ *             the ALU output based on the instruction's needs
+*
+* Change history: 01/01/17 – Did something
+* 10/29/17 – Did something else
+*
+**********************************************************************/
 `timescale 1ns/1ns
 `include "defines.v"
 
