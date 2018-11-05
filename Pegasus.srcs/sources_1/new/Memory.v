@@ -69,7 +69,7 @@ module Memory(
 
     initial 
         begin
-            $readmemh("./hex/test2.hex", memt); //<-- why does cloudv save it as txt??
+            $readmemh("C:/Users/mfaisal/Pegasus/Resources/test1.txt", memt); //<-- why does cloudv save it as txt??
             for(i=0;i<128;i = i+1) begin
                 Bank0.mem[i] = memt[i][31:24];
                 Bank1.mem[i] = memt[i][23:16];
