@@ -21,7 +21,7 @@
 `define     NOP_INSTRUCTION                                     32'b0
 
 //ADDRESSES
-`define     COMPRESSED_ADRR_ZERO                                5'b00
+`define     COMPRESSED_ADDR_ZERO                                5'b00
 `define     COMPRESSED_ADDR_TWO                                 5'b10
 
 //QUADRANTS
