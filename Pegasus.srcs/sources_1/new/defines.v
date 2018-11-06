@@ -113,7 +113,7 @@
 //to be changed
 `define     ADDRESS_SIZE           4:0
 `define     DATA_SIZE              31:0
-`define     RREGISTERS_RANGE       31:0
+`define     REGISTERS_RANGE       31:0
 `define     WRITE_NONE             32'b0000_0000_0000_0000_0000_0000_0000_0000
 `define     WRITE_FIRST            32'b0000_0000_0000_0000_0000_0000_0000_0001
 `define     FIRST_REG_NUM          6'b000001

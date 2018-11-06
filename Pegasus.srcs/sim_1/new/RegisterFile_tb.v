@@ -1,6 +1,6 @@
 // file: tb_RegisterFile.v
 // author: @mfaisal
-
+/*
 `include "defines.v"
 
 `timescale  1ns / 1ps
@@ -58,4 +58,4 @@ begin
     $finish;
 end
 
-endmodule
+endmodule*/

@@ -18,6 +18,7 @@ module Memory(
     input clk,
     input slow_signal,
     input [31:0] address,
+    input [1:0] nexta,
     input [31:0] data,
     input memread,
     input memwrite,
@@ -25,16 +26,18 @@ module Memory(
     output [31:0] dataout,
     output reg [31:0] testingRead
     );
-    
+    reg nextaddressfix;
     reg a1, a0;
+    wire lw, lh ,lhu, lb , lbu , sw, sh ,sb;
     //reg [31:0] testingRead [0:4];
     
     always@(posedge clk) begin
         a1 <= address[1];
         a0 <= address[0];
+        nextaddressfix <= lw&nexta[1]&~nexta[0]&slow_signal;
     end
     
-    wire lw, lh ,lhu, lb , lbu , sw, sh ,sb;
+    
     
     assign lw = funct3[1] & memread | slow_signal;
     assign lh = ~slow_signal&(funct3[0]&memread&~funct3[2]);
@@ -52,8 +55,18 @@ module Memory(
     wire [7:0] bank1datain;         
     wire [7:0] bank2datain;
     wire [7:0] bank3datain;
-
-    MemControl MC(.address({address[31:2],a1,a0}),.data(data),
+    
+    
+    wire [29:0] addressplusone , newaddress;
+    wire newaddressflag;
+    
+   
+    assign newaddressflag = lw&a1&~a0&slow_signal;
+    
+    assign addressplusone = address[31:2] + `ONE_1;
+    assign newaddress = nextaddressfix ? addressplusone : address[31:2];
+     
+    MemControl MC(.address({address[31:2],a1,a0}),.unalignedword(newaddressflag),.data(data),
     .lw(lw),.lh(lh),.lhu(lhu),.lb(lb),.lbu(lbu),
     .sw(sw),.sh(sh),.sb(sb),.bankdata0(bankout[7:0]),
     .bankdata1(bankout[15:8]),.bankdata2(bankout[23:16]),
@@ -62,10 +75,10 @@ module Memory(
     .savedata2(bank2datain),.savedata3(bank3datain),
     .dataout(dataout));
 
-    MemBank Bank0(.clk(clk),.address(address[31:2]), 
+    MemBank Bank0(.clk(clk),.address(newaddress), 
                 .datain(bank0datain), 
                 .writereadbar(bankwritereadbar[0]),.dataout(bankout[7:0]));    
-    MemBank Bank1(.clk(clk),.address(address[31:2]),
+    MemBank Bank1(.clk(clk),.address(newaddress),
                 .datain(bank1datain), 
                 .writereadbar(bankwritereadbar[1]),.dataout(bankout[15:8]));        
     MemBank Bank2(.clk(clk),.address(address[31:2]),
@@ -95,7 +108,7 @@ module Memory(
   */
   initial  
         begin
-            $readmemh("C:/Users/ahmed.leithym/Downloads/Project2-11/Pegasus/Resources/test1.txt", memt);
+            $readmemh("C:/Users/areeg.mostafa/Documents/Pegasus/Resources/test1.txt", memt);
             for(i=0;i<128;i = i+1) begin
                 Bank0.mem[i] = memt[i][31:24];
                 Bank1.mem[i] = memt[i][23:16];

@@ -138,13 +138,17 @@ module Datapath(
     );
     
     
-    //  assign Pipeline_1_RegIn = {immediate[31:30],lui, inst[`IR_funct3],pc4, pc, immediate[29:0], mem_read, mem_write, reg_write_back, branch, unconditionalbranch, rd_addr, rs1, rs2_muxout, forward_a, forward_b, forward_store};
-                              //      178:177     176  175:173,    172:141, 140:109, 108:79,         76,       75,         74,            73,        72,        71:67,  66:35,       34:3,     2,            1,          0
-   
+ 
    
     assign nextpc = em_jalr ? aluout : (branch_taken | em_jal? branch_PC: pc4); //2nd stage//check check
     //branch, unconditional
-    assign pc4 = pc + `FOUR;
+    //assign pc4 = pc + 2; // +4 became + 2-----------------------------------------------------------------------
+    PC_Incrementor pc4_2(
+                .Instruction(inst), 
+                .PC(pc),
+                .PC_Next(pc4)
+            );
+
     assign unconditionalbranch = jal | jalr;
     
     Register #(`THIRTY_TWO) pcreg (
@@ -210,13 +214,6 @@ module Datapath(
     );
 
     assign rs2_muxout = alu_src_two_sel? immediate:rs2;
-  /*  MUX2x1 #(32) imm_VS_rs2 (
-        .A(rs2),
-        .B(immediate),
-        .sel(),
-        .out(rs2_muxout)
-        );  
-*/
 
 
     ForwardingUnit fu(
@@ -230,11 +227,7 @@ module Datapath(
         .forward_store(forward_store)
         );
         
-  //  assign Pipeline_1_RegIn = {auipc ,jal, jalr, immediate[31:30],lui, inst[`IR_funct3],pc4, pc, immediate[29:0], mem_read, mem_write, reg_write_back, branch, unconditionalbranch, inst[`IR_rd], rs1, rs2_muxout, forward_a, forward_b, forward_store};
-    
-                            //  178  177  176:175            174  173:171,    170:139, 138:107, 106:77,         76,       75,         74,            73,        72,             71:67,  66:35,       34:3,     2,            1,          0
-  
-     Register #(184) Pipeline_1 (
+   Register #(184) Pipeline_1 (
         .clk(clk),
         .rst(rstsync),
         .load(~ssignal), //CHECK THIS!!//stayed the same
@@ -310,22 +303,10 @@ module Datapath(
         .Overflow(v)
     );
     assign branch_PC = em_pc + em_immediate;
-//       assign Pipeline_1_RegIn = {jal, jalr, immediate[31:30],lui, inst[`IR_funct3],pc4, pc, immediate[29:0], mem_read, mem_write, reg_write_back, branch, unconditionalbranch, inst[`IR_rd], rs1, rs2_muxout, forward_a, forward_b, forward_store};
-                               //  178  177  176:175            174  173:171,    170:139, 138:107, 106:77,         76,       75,         74,            73,        72,             71:67,  66:35,       34:3,     2,            1,          0
-  /*  
-    wire branch_taken_temp, branch_taken_temp2;
-    
-    Register #(1) branchregister (
-            .clk(clk),
-            .rst(rstsync),
-            .load(`ONEs_1), //CHECK THIS!!
-            .data_in(branch_taken_temp),
-            .data_out(branch_taken_temp2)
-        ); 
-    */    
+
     BranchControlUnit bcu(
         .branch(em_branch),
-        .ssignal(`ONEs_1),
+        .ssignal(`ONE_1),
         .unconditionalbranch(em_unconditionalbranch),
         .func3(em_func3),
         .zeroflag(zf),
@@ -335,14 +316,13 @@ module Datapath(
         .takebranch(branch_taken)//or temp
     );
 
-  // assign branch_taken = branch_taken_temp | branch_taken_temp2;
-   
    
     assign memaddressmuxout = (em_mem_read|em_mem_write)&ssignal ? aluout : pc; //was signal
     
     Memory memory(
         .clk(clk),
         .slow_signal(ssignal),
+        .nexta(nextpc[1:0]),
         .address(memaddressmuxout),
         .data(meminputmuxout),
         .memread(em_mem_read),
@@ -352,13 +332,8 @@ module Datapath(
     );
     
     assign meminputmuxout =  em_forward_store? rfwritedata: aluin_2;
-    //Pipeline_1_RegIn = {inst[`IR_funct3],pc4, pc, immediate, mem_read, mem_write, reg_write_back, branch, unconditionalbranch, rd_addr, rs1, rs2instmuxout, forward_a, forward_b, forward_store};
-                            //  175:173, 172:141, 140:109, 108:79, 76,       75,         74,            73,        72,        71:67,  66:35,       34:3,     2,            1,          0
-                             
-                            
-                               //      rd_addr         
-           //    137                          136                   135 :104                                         103:72                        71                        70                   69                    68:64                    63:32   31:0
-    Register #(139) Pipeline_2 (
+ 
+   Register #(139) Pipeline_2 (
         .clk(clk),
         .rst(rstsync),
         .load(~ssignal), //CHECK THIS!! //was signal
