@@ -9,12 +9,15 @@
 *               that is the major component of the execute stage. 
 *               It supports all the instructions of RISC-V32I
 *
-* Change history: 01/01/17 – Did something
-*                 10/29/17 – Did something else
-*                 11/01/18 – I added the pass signal instead of default 
+* Change history: 22/10/18 – Did the ALU Skeleton
+*                 24/10/18 – Added the Logic of the ALU functionalities as well
+*                            as the multiplexer to choose the output 
+*                 29/10/18 – Instead of RCA I used the + as suggested to allow
+*                            flexibilty
+*                 01/11/18 – I added the pass signal instead of default 
 *                            0 as I finally understood why its needed for 
 *                            LUI instruction.
-*                 11/03/18 – I'm cleaning up our code with constants and 
+*                 03/11/18 – I'm cleaning up our code with constants and 
 *                            making sure we are following the coding guidelines
 **********************************************************************/
 `timescale 1ns/1ns
