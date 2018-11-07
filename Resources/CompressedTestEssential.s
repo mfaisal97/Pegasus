@@ -24,14 +24,14 @@ c.addi  s1, 5;
 success:
 c.addi  s1, 10;												#working
 
-c.li s1, 7;													#working
+c.li s1, 7;													#working		24
 c.lui s1, 0xfffe1;											#working
 
-c.li s0, 1;
-c.srli s0, 12;
+c.li s0, 1;													#working		
+c.srli s0, 12;												#working
 
 
-c.li s0, -1;
+c.li s0, -1;												#working		2c
 c.srai s0, 12;
 
 
@@ -40,21 +40,21 @@ c.slli s0, 12;
 
 
 #s0, ~0x11
-c.li s0, -2;
-c.andi s0, ~0x10;
+c.li s0, -2;												#working		34
+c.andi s0, ~0x10;											#working		
 
 
 
 #s1, 14
-li s1, 20;
-li a0, 6;
-c.sub s1, a0;
+li s1, 20;													#working
+li a0, 6;													#working
+c.sub s1, a0;												#working
 
 
 #s1, 18
-li s1, 20;
+li s1, 20;													
 li a0, 6;
-c.xor s1, a0;
+c.xor s1, a0;												#working
 
 
 #s1, 22
