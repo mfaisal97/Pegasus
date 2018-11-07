@@ -2,30 +2,30 @@
 
 .text
 
-#c.addi4spn a1, sp, 1020;
-c.addi16sp sp, 496;
-c.addi16sp sp, -512;
+#c.addi4spn a1, sp, 1020;									#working
+c.addi16sp sp, 496;											#working
+c.addi16sp sp, -512;										#working
 
 
 
 la a0,ten;
 la a1,twenty;
-c.lw a3, 0(a0);
-c.sw a4, 0(a1);
+c.lw a3, 0(a0);												#not sure
+c.sw a4, 0(a1);												#not sure
 
-c.addi a5, 1;
-addi a0, a0, 1;
-c.addi  a1, 1;
+c.addi a5, 1;												#working											
+addi a0, a0, 1;												#working
+c.addi  a1, 1;												#working			1c
 
 
-c.jal success;
+c.jal success;												#working
 c.addi  s1, 5;
 
 success:
-c.addi  s1, 10;
+c.addi  s1, 10;												#working
 
-c.li s1, 7;
-c.lui s1, 0xfffe1;
+c.li s1, 7;													#working
+c.lui s1, 0xfffe1;											#working
 
 c.li s0, 1;
 c.srli s0, 12;
