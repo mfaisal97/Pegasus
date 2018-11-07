@@ -108,7 +108,7 @@ module Memory(
   */
   initial  
         begin
-            $readmemh("C:/Users/areeg.mostafa/Documents/Pegasus/Resources/test1.txt", memt);
+            $readmemh("C:/Users/mfaisal/Pegasus/Resources/CompressedTestEssential.txt", memt);
             for(i=0;i<128;i = i+1) begin
                 Bank0.mem[i] = memt[i][31:24];
                 Bank1.mem[i] = memt[i][23:16];
