@@ -1,17 +1,14 @@
-# Pegasus
-Team members:
-      Ahmed Leithy
-      Areeg Mostafa
-      Muhammad Faisal
+Team members: 
+	Ahmed Leithy, Areeg Mostafa, and  Muhammad Faisal
 
-Issues:
-      Some compressed instructions like Load, Store and Branch cause us some errors that we are trying to fix for now
+Issues: 
+	Store half word is causing us some errors that we are trying to fix for now
 
-Assumptions: 
-      
+Assumptions:
+	ECALL and similar instructions do not exist yet	
 
-What works:
-      Milestone 2 (test1 and test2) work completely fine as well as the PC incrementor
+What works: 
+	Milestone 2 (test1 and test2) work completely fine as well as the PC incrementor and Decompressing Unit
 
-What does not work:
-      Compressed Load, Store and Branch
+What does not work: 
+	Store Half Word
