@@ -44,11 +44,11 @@
 
 
 module PC_Incrementor(
-            input[31:0] Instruction, 
+            input not_compressed, 
             input[31:0] PC,
             output[31:0] PC_Next
         );
 
- assign PC_Next = (Instruction[0] & Instruction[1]) || ~|Instruction ? PC + 4 : PC + 2;
+ assign PC_Next = not_compressed ? PC + 4 : PC + 2;
 
 endmodule

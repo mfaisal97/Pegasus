@@ -26,6 +26,7 @@ module Datapath(
     //Instruction Fetch-Decode register
     //wires declaration
     wire ssignal;
+    wire not_compressed;
     wire branch;
     wire stall;
     wire rstsync;
@@ -55,6 +56,7 @@ module Datapath(
     wire [`DATA_SIZE] pc;
     wire [`DATA_SIZE] pc4;
     wire [`DATA_SIZE] instregin;
+    wire [`DATA_SIZE] fetchedinst;
     wire [`DATA_SIZE] nextpc;
     wire [`DATA_SIZE] immediate;
     wire [`DATA_SIZE] inst;
@@ -144,7 +146,7 @@ module Datapath(
     //branch, unconditional
     //assign pc4 = pc + 2; // +4 became + 2-----------------------------------------------------------------------
     PC_Incrementor pc4_2(
-                .Instruction(inst), 
+                .not_compressed(not_compressed), 
                 .PC(pc),
                 .PC_Next(pc4)
             );
@@ -159,6 +161,11 @@ module Datapath(
         .data_out(pc)
     );
     
+    CompressedInstExtender extender (
+        .compressed_inst(fetchedinst),
+        .extended_inst(instregin),
+        .not_compressed(not_compressed)
+    );
     
     Register #(`THIRTY_TWO) instreg (
         .clk(clk),
@@ -374,7 +381,7 @@ module Datapath(
 
     assign rs2in = write ? wb_rd_addr: inst[24:20];
 
-    MUX2x1 #(`THIRTY_TWO) irmux(memout,`NOP,branch_taken,instregin); //FLUSH SIGNAL 
+    MUX2x1 #(`THIRTY_TWO) irmux(memout,`NOP,branch_taken,fetchedinst); //FLUSH SIGNAL 
 
 
     
