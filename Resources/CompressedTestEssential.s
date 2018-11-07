@@ -2,7 +2,7 @@
 
 .text
 
-c.addi4spn a1, sp, 1020;
+#c.addi4spn a1, sp, 1020;
 c.addi16sp sp, 496;
 c.addi16sp sp, -512;
 
