@@ -136,13 +136,13 @@ always @(*) begin
         `COMPRESSED_QUADRANT_1: begin
             case(compressed_inst[`COMPRESSED_ADDRESS_FUNC3])
                 `COMPRESSED_FUNC3_ADDI:             extended_inst = {{7{compressed_inst[12]}}, compressed_inst[6:2], compressed_inst[`COMPRESSED_ADDRESS_RS1_RD], `F3_ADD, compressed_inst[`COMPRESSED_ADDRESS_RS1_RD], `OPCODE_Arith_I, `NOT_COMPRESSED };
-                `COMPRESSED_FUNC3_JAL:              extended_inst = {{9{compressed_inst[12]}}, compressed_inst[8], compressed_inst[10:9], compressed_inst[7:6], compressed_inst[2], compressed_inst[11], compressed_inst[5:3], 1'b0, `COMPRESSED_ADDR_ONE, `OPCODE_JAL, `NOT_COMPRESSED};
+                `COMPRESSED_FUNC3_JAL:              extended_inst = {compressed_inst[12], compressed_inst[8] , compressed_inst[10:9] , compressed_inst[6] , compressed_inst[7] , compressed_inst[2] , compressed_inst[11] ,compressed_inst[5:3], {9{compressed_inst[12]}}, `COMPRESSED_ADDR_ONE, `OPCODE_JAL, `NOT_COMPRESSED};
                 `COMPRESSED_FUNC3_LI:               extended_inst = {{7{compressed_inst[12]}}, compressed_inst[6:2], `COMPRESSED_ADDR_ZERO, `F3_ADD, compressed_inst[`COMPRESSED_ADDRESS_RD], `OPCODE_Arith_I, `NOT_COMPRESSED };
                 `COMPRESSED_FUNC3_ADD16SP_LUI:      begin
                     case(compressed_inst[`COMPRESSED_ADDRESS_RD])
                         `COMPRESSED_ADDR_TWO :      extended_inst = {{3{compressed_inst[12]}}, compressed_inst[4:3], compressed_inst[5], compressed_inst[2], compressed_inst[6], 4'b0, `COMPRESSED_ADDR_TWO, `F3_ADD, `COMPRESSED_ADDR_TWO, `OPCODE_Arith_I, `NOT_COMPRESSED};
                         `COMPRESSED_ADDR_ZERO:      extended_inst = `NOP_INSTRUCTION;
-                        default:                    extended_inst = {15'b0, compressed_inst[12], compressed_inst[6:2], compressed_inst[`COMPRESSED_ADDRESS_RD], `OPCODE_LUI, `NOT_COMPRESSED};
+                        default:                    extended_inst = {{15{compressed_inst[12]}}, compressed_inst[6:2], compressed_inst[`COMPRESSED_ADDRESS_RD], `OPCODE_LUI, `NOT_COMPRESSED};
                     endcase
                 end
                 `COMPRESSED_FUNC3_SR_ALU:   begin
