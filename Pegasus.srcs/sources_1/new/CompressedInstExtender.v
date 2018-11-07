@@ -162,7 +162,7 @@ always @(*) begin
                         default:                                extended_inst = `NOP_INSTRUCTION;
                     endcase
                 end
-                `COMPRESSED_FUNC3_J:                extended_inst = { {9{compressed_inst[12]}}, compressed_inst[8], compressed_inst[10:9], compressed_inst[7:6], compressed_inst[2], compressed_inst[11], compressed_inst[5:3], 1'b0, `COMPRESSED_ADDR_ZERO, `OPCODE_JAL, `NOT_COMPRESSED};
+                `COMPRESSED_FUNC3_J:                extended_inst = { compressed_inst[12], compressed_inst[8] , compressed_inst[10:9] , compressed_inst[6] , compressed_inst[7] , compressed_inst[2] , compressed_inst[11] ,compressed_inst[5:3], {9{compressed_inst[12]}}, `COMPRESSED_ADDR_ZERO, `OPCODE_JAL, `NOT_COMPRESSED};
                 `COMPRESSED_FUNC3_BEQZ:             extended_inst = {3'b0, compressed_inst[12], compressed_inst[6:5], compressed_inst[2], `COMPRESSED_ADDR_EXTENSION, compressed_inst[`COMPRESSED_ADDRESS_RS1_REDUCED], `BR_BEQ , compressed_inst[11:10], compressed_inst[4:3], 1'b0, `OPCODE_Branch, `NOT_COMPRESSED};
                 `COMPRESSED_FUNC3_BNEZ:             extended_inst = {3'b0, compressed_inst[12], compressed_inst[6:5], compressed_inst[2], `COMPRESSED_ADDR_EXTENSION, compressed_inst[`COMPRESSED_ADDRESS_RS1_REDUCED],  `BR_BNE , compressed_inst[11:10], compressed_inst[4:3], 1'b0, `OPCODE_Branch, `NOT_COMPRESSED};
                 default:                            extended_inst = `NOP_INSTRUCTION;
