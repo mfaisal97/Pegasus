@@ -2,25 +2,27 @@
 
 .text
 
-c.addi4spn a0, sp, 1020;
-c.addi4spn a1, 1020;
+c.addi4spn a1, sp, 1020;
 c.addi16sp sp, 496;
 c.addi16sp sp, -512;
 
 
-c.lw a3, 0(ten);
-c.sw a4, 0(twenty);
 
-c.addi a5, a5, 1;
-c.addi a0, a0, 1;
-c.addi a1, a1, 1;
+la a0,ten;
+la a1,twenty;
+c.lw a3, 0(a0);
+c.sw a4, 0(a1);
+
+c.addi a5, 1;
+addi a0, a0, 1;
+c.addi  a1, 1;
 
 
 c.jal success;
-c.addi s1, s1, 5;
+c.addi  s1, 5;
 
 success:
-c.addi s1, s1, 10;
+c.addi  s1, 10;
 
 c.li s1, 7;
 c.lui s1, 0xfffe1;
@@ -92,14 +94,14 @@ li s1, 30;
 #a2, 0xfffffffffedcba99
 c.lwsp a0, 12(sp);
 addi a0, a0, 1;
-c.swsp a0, 12(sp);
+c.swsp a1, 12(sp);
 c.lwsp a2, 12(sp);
 
 
 
 li a0, success5;
 jr a0;
-li s1, 20;
+la a0, success5;
 
 success5: 
 li s1, 30;
@@ -116,5 +118,5 @@ c.add t0, a0;
 
 
 .data
-ten : 0x55
-twenty : 0x00
+ten :.long 0x55
+twenty :.long 0x00
