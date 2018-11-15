@@ -2,13 +2,16 @@
 // author: @ahmedleithy
 /*******************************************************************
 *
-* Module: module_name.v
-* Project: Project_Name
-* Author: name and email
-* Description: put your description here
+* Module: Memory.v
+* Project: Pegasus
+* Author: Ahmed Leithy - Ahmed.leithym@aucegypt.edu
+* Description: This is the Module that interacts with the datapath and handles all memory operations internally.
 *
-* Change history: 01/01/17 – Did something
-* 10/29/17 – Did something else
+* Change history: 
+* 26/10/17 – Memory was initialized
+* 1/11/17 – fix memory store instructions
+* 6/11/17 - Edited the memory so that it can access instructions unaligned (for mid word)
+* 8/11/17 - Fixed memory instructions on unaligned locations
 *
 **********************************************************************/
 `timescale 1ns/1ns

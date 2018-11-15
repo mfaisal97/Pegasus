@@ -2,14 +2,18 @@
 // author: @ahmedleithy
 /*******************************************************************
 *
-* Module: module_name.v
-* Project: Project_Name
-* Author: name and email
-* Description: put your description here
+* Module: MemControl.v
+* Project: Pegasus
+* Author: Ahmed Leithy - Ahmed.leithym@aucegypt.edu
+* Description: This module controls all the internal control signals and coordinates the memory bank outputs. 
 *
-* Change history: 01/01/17 – Did something
-* 10/29/17 – Did something else
-*
+* Change history: 
+* 26/10/17 – Memory Control was initialized
+* 27/29/17 – Needed to edit the control signals.
+* 1/11/17 – Fixed store control signals
+* 6/11/17 - Edited the memory so that it can access instructions unaligned (for mid word)
+* 8/11/17 - Fixed memory instructions on unaligned locations
+
 **********************************************************************/
 `timescale 1ns/1ns
 `include "defines.v"

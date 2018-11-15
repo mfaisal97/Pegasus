@@ -2,13 +2,13 @@
 // author: @ahmedleithy
 /*******************************************************************
 *
-* Module: module_name.v
-* Project: Project_Name
-* Author: name and email
-* Description: put your description here
+* Module: MemBank.v
+* Project: Pegasus
+* Author: Ahmed Leithy - Ahmed.leithym@aucegypt.edu
+* Description: This module functions as a single memory bank.
 *
-* Change history: 01/01/17 – Did something
-* 10/29/17 – Did something else
+* Change history: 
+* 26/10/18 – Memory Bank was initialized
 *
 **********************************************************************/
 `include "defines.v"
