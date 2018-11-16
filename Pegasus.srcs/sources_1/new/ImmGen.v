@@ -25,6 +25,7 @@ always @(*) begin
 		`OPCODE_JAL       :     Imm = { {12{IR[31]}}, IR[19:12], IR[20], IR[30:25], IR[24:21], 1'b0 };
 		`OPCODE_JALR      :     Imm = { {21{IR[31]}}, IR[30:25], IR[24:21], IR[20] };
 		`OPCODE_Branch    :     Imm = { {20{IR[31]}}, IR[7], IR[30:25], IR[11:8], 1'b0};
+		`OPCODE_SYSTEM    :     Imm = { 27'b0, IR[19:15]};
 		default           :     Imm = { {21{IR[31]}}, IR[30:25], IR[24:21], IR[20] }; // IMM_I
 	endcase 
 end
