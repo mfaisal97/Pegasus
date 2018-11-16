@@ -14,6 +14,14 @@
 **********************************************************************/
 
 `include "defines.v"
+`define     MCYCLE    32'hb00
+`define     MTIME    32'hb01
+`define     MINSTRET    32'hb02
+`define     MTIMECMP    32'hb03
+`define     MEPC    32'h341
+`define     MIE    32'h304
+`define     MIP    32'h344
+
 module CSR(
     input clk,
     input rst,
@@ -63,7 +71,10 @@ module CSR(
     reg [31:0] mepc;
     reg [3:0] mie;
     reg [2:0] mip;
+    
+    
     assign mieSignals = mie;
+    //assign mepc = interrupt_indicator ? PC : ((address==`MEPC)&CSRwrite) ? dataIn : mepc;
     
     always@(posedge clk) begin
         if(rst)begin
@@ -73,11 +84,31 @@ module CSR(
             mip <= `ZERO;
         end    
         else begin 
+            if(interrupt_indicator)
+                mepc <=PC;
+            else if((address==`MEPC)&&CSRwrite)
+                mepc <= dataIn;
+            else 
+                mepc<= mepc;
+                
+            
             if(CSRwrite)
-                if(address==32'hb03)
+                if(address== `MTIMECMP)
                     mtimecmp <= dataIn;
-                else if(address ==    
+                else if(address == `MIE)
+                    mie <= dataIn[3:0]; 
+                else if (address == `MIP)
+                    mip <= dataIn[2:0];   
+                else
+                    mie <=mie;  
         end
     end
     
+    assign CSRout = (address == `MCYCLE) ? mcycleOut :
+                (address == `MTIME) ? mtimeOut  :
+                (address == `MTIMECMP) ? mtimecmp  :
+                (address == `MINSTRET) ? mcycleOut  :
+                (address == `MEPC) ? mepc:
+                (address == `MIE) ? {{28{`ZERO_ONE_BIT}} ,mie}: 
+                (address == `MIP)? {{29{`ZERO_ONE_BIT}} ,mip}:`ZERO;
 endmodule
