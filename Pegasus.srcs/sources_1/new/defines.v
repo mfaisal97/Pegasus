@@ -50,6 +50,13 @@
 `define     F3_OR                  3'b110
 `define     F3_AND                 3'b111
 
+//CSRs
+`define     F3_LEAST_CSR_RW             2'b01
+`define     F3_LEAST_CSR_RS             2'b10
+`define     F3_LEAST_CSR_RC             2'b11
+`define     F3_LEAST_LOC                13:12
+`define     F3_Imm_BIT_LOC              14
+
 `define     BR_BEQ                 3'b000
 `define     BR_BNE                 3'b001
 `define     BR_BLT                 3'b100
