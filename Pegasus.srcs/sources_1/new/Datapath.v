@@ -19,7 +19,10 @@
 
 module Datapath(
     input clk, 
-    input rst
+    input rst,
+    input NMI,
+    input status,
+    input [2:0] interrupt_index
     );
     
     
