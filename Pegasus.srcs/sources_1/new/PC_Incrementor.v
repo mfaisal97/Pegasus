@@ -1,48 +1,19 @@
+// file: PC_Incrementor.v
+// author: @melodyg
+/*******************************************************************
+*
+* Module: PC_Incrementor.v
+* Project: Pegasus
+* Author: Arig Mostafa, areeg.mostafa@aucegypt.edu
+* Description: This module increments the PC based on the instruction
+*
+* Change history: 05/11/18 – Module istantiation
+*                 05/11/18 – Added the fact that if its an illegal
+*                           instruction increment by 4 instead using ~|
+*                 07/11/18 - Faisal changed the input from an instruction to a signal
+**********************************************************************/
 
 `timescale 1ns / 1ps
-
-//////////////////////////////////////////////////////////////////////////////////
-
-// Company: 
-
-// Engineer: 
-
-// 
-
-// Create Date: 11/06/2018 09:07:27 PM
-
-// Design Name: 
-
-// Module Name: PC_Incrementor
-
-// Project Name: 
-
-// Target Devices: 
-
-// Tool Versions: 
-
-// Description: 
-
-// 
-
-// Dependencies: 
-
-// 
-
-// Revision:
-
-// Revision 0.01 - File Created
-
-// Additional Comments:
-
-// 
-
-//////////////////////////////////////////////////////////////////////////////////
-
-
-
-
-
 module PC_Incrementor(
             input not_compressed, 
             input[31:0] PC,
@@ -52,3 +23,4 @@ module PC_Incrementor(
  assign PC_Next = not_compressed ? PC + 4 : PC + 2;
 
 endmodule
+
