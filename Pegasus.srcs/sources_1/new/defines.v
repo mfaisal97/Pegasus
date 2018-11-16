@@ -132,6 +132,7 @@
 `define     BRANCHFALSE            1'b0
 `define     BRANCHTRUE             1'b1
 `define     ALUSEL_SIZE            3:0
+`define     ONES_DATA             32'b1111_1111_1111_1111_1111_1111_1111_1111
 
 
 //PARTS LOCATIONS
