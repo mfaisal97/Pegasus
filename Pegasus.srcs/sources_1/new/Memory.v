@@ -2,13 +2,16 @@
 // author: @ahmedleithy
 /*******************************************************************
 *
-* Module: module_name.v
-* Project: Project_Name
-* Author: name and email
-* Description: put your description here
+* Module: Memory.v
+* Project: Pegasus
+* Author: Ahmed Leithy - Ahmed.leithym@aucegypt.edu
+* Description: This is the Module that interacts with the datapath and handles all memory operations internally.
 *
-* Change history: 01/01/17 – Did something
-* 10/29/17 – Did something else
+* Change history: 
+* 26/10/17 – Memory was initialized
+* 1/11/17 – fix memory store instructions
+* 6/11/17 - Edited the memory so that it can access instructions unaligned (for mid word)
+* 8/11/17 - Fixed memory instructions on unaligned locations
 *
 **********************************************************************/
 `timescale 1ns/1ns
@@ -44,7 +47,7 @@ module Memory(
     assign lhu= ~slow_signal&(funct3[0]&memread&funct3[2]);
     assign lb = ~slow_signal&(memread&~funct3[0]&~funct3[1]&~funct3[2]);
     assign lbu= ~slow_signal&(memread&~funct3[0]&~funct3[1]&funct3[2]);
-    assign sh = slow_signal&(funct3[0]&memwrite);
+    assign sh = slow_signal&(funct3[0] & memwrite);
     assign sw = slow_signal&(funct3[1] & memwrite);
     assign sb = slow_signal&(memwrite&~funct3[0]&~funct3[1]);
     
@@ -73,7 +76,7 @@ module Memory(
     .bankdata3(bankout[31:24]),.bankwritereadbar(bankwritereadbar),
     .savedata0(bank0datain),.savedata1(bank1datain),
     .savedata2(bank2datain),.savedata3(bank3datain),
-    .dataout(dataout));
+    .dataout(dataout),.currenta(address[1:0]));
 
     MemBank Bank0(.clk(clk),.address(newaddress), 
                 .datain(bank0datain), 
@@ -108,7 +111,7 @@ module Memory(
   */
   initial  
         begin
-            $readmemh("C:/Users/mfaisal/Pegasus/Resources/CompressedTestEssential.txt", memt);
+            $readmemh("C:/Users/ahmed.leithym/Downloads/Pegasus-master/Pegasus-master/Resources/testC2.txt", memt);
             for(i=0;i<128;i = i+1) begin
                 Bank0.mem[i] = memt[i][31:24];
                 Bank1.mem[i] = memt[i][23:16];
