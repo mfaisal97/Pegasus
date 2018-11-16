@@ -38,6 +38,7 @@ module ForwardingUnit (
                                         end 
             `OPCODE_Arith_I,
             `OPCODE_JALR,
+            `OPCODE_SYSTEM,
             `OPCODE_Load        :       begin 
                                             forward_a = (rs1 == rd) & reg_write & (rd != `ZERO_REGISTER);
                                             forward_b = `NO_FORWARD;

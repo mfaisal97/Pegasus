@@ -54,25 +54,25 @@ c.sub s1, a0;												#working
 #s1, 18
 li s1, 20;													
 li a0, 6;
-c.xor s1, a0;												#working
+c.xor s1, a0;												#working	42
 
 
 #s1, 22
 li s1, 20;
 li a0, 6;
-c.or s1, a0;
+c.or s1, a0;												#working	48
 
 
 #s1,  4
 li s1, 20;
 li a0, 6;
-c.and s1, a0;
+c.and s1, a0;												#working	4e
 
-c.j success2
+c.j success2												#working
 li s1, 20;
 
 success2: 
-li s1, 30;
+li s1, 30;													#working	54
 
 
 li a0, 0;
@@ -83,12 +83,12 @@ success3:
 li s1, 30;
 
 
-li a0, 1;
-c.bnez a0, success4;
+li a0, 1;													#working	5e
+c.bnez a0, success4;										#working	60
 li s1, 20;
 
 success4: 
-li s1, 30;
+li s1, 30;													#working 
 
 
 #a2, 0xfffffffffedcba99

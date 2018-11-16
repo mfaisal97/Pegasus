@@ -25,6 +25,7 @@
 
 module ControlUnit (
     input [`IR_full_opcode] opcode,
+    input [`IR_funct3] funct3,
     output alu_src_two_sel,
     output mem_read,
     output mem_write,
@@ -33,7 +34,12 @@ module ControlUnit (
     output lui,
     output jal,
     output jalr,
-    output auipc
+    output auipc,
+    output csr,
+    output csr_read_write,
+    output csr_src1_sel_imm,
+    output csr_src1_sel_rc,
+    output csr_src2_sel
 );
 
 assign alu_src_two_sel = (opcode[`IR_opcode] == `OPCODE_Arith_I) || (opcode[`IR_opcode] == `OPCODE_Store) || (opcode[`IR_opcode] == `OPCODE_JALR) || (opcode == `OPCODE_Load_F) || (opcode[`IR_opcode] == `OPCODE_LUI) ;
@@ -45,7 +51,11 @@ assign jal = (opcode[`IR_opcode] == `OPCODE_JAL);
 assign jalr = (opcode[`IR_opcode] == `OPCODE_JALR);
 assign lui = (opcode[`IR_opcode] == `OPCODE_LUI);
 assign auipc = (opcode[`IR_opcode] == `OPCODE_AUIPC);
-
+assign csr = (opcode[`IR_opcode] == `OPCODE_SYSTEM) && (|funct3[`F3_LEAST_LOC]);
+assign csr_read_write = (opcode[`IR_opcode] == `OPCODE_SYSTEM) && (funct3[`F3_LEAST_LOC] == `F3_LEAST_CSR_RW);
+assign csr_src1_sel_imm = (opcode[`IR_opcode] == `OPCODE_SYSTEM) && funct3[`F3_Imm_BIT_LOC];
+assign csr_src1_sel_rc = (opcode[`IR_opcode] == `OPCODE_SYSTEM) && (funct3[`F3_LEAST_LOC] == `F3_LEAST_CSR_RC);
+assign csr_src2_sel = csr;
 endmodule
 
 
