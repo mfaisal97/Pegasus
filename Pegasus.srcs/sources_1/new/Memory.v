@@ -47,7 +47,7 @@ module Memory(
     assign lhu= ~slow_signal&(funct3[0]&memread&funct3[2]);
     assign lb = ~slow_signal&(memread&~funct3[0]&~funct3[1]&~funct3[2]);
     assign lbu= ~slow_signal&(memread&~funct3[0]&~funct3[1]&funct3[2]);
-    assign sh = slow_signal&(funct3[0]&memwrite);
+    assign sh = slow_signal&(funct3[0] & memwrite);
     assign sw = slow_signal&(funct3[1] & memwrite);
     assign sb = slow_signal&(memwrite&~funct3[0]&~funct3[1]);
     
@@ -76,7 +76,7 @@ module Memory(
     .bankdata3(bankout[31:24]),.bankwritereadbar(bankwritereadbar),
     .savedata0(bank0datain),.savedata1(bank1datain),
     .savedata2(bank2datain),.savedata3(bank3datain),
-    .dataout(dataout));
+    .dataout(dataout),.currenta(address[1:0]));
 
     MemBank Bank0(.clk(clk),.address(newaddress), 
                 .datain(bank0datain), 
@@ -111,7 +111,7 @@ module Memory(
   */
   initial  
         begin
-            $readmemh("C:/Users/mfaisal/Pegasus/Resources/CompressedTestEssential.txt", memt);
+            $readmemh("C:/Users/ahmed.leithym/Downloads/Pegasus-master/Pegasus-master/Resources/testC2.txt", memt);
             for(i=0;i<128;i = i+1) begin
                 Bank0.mem[i] = memt[i][31:24];
                 Bank1.mem[i] = memt[i][23:16];

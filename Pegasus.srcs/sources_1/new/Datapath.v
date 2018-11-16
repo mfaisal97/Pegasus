@@ -78,7 +78,7 @@ module Datapath(
     wire forward_a;
     wire forward_b;
     wire forward_store;
-   
+   wire [`DATA_SIZE]  em_rs2;
     wire [`DATA_SIZE] aluout;
     wire [`DATA_SIZE] aluin_1;
     wire [`DATA_SIZE] aluin_2;
@@ -234,11 +234,13 @@ module Datapath(
         .forward_store(forward_store)
         );
         
-   Register #(184) Pipeline_1 (
+   Register #(216) Pipeline_1 (
         .clk(clk),
         .rst(rstsync),
         .load(~ssignal), //CHECK THIS!!//stayed the same
-        .data_in({auipc,
+        .data_in({
+                  rs2,
+                  auipc,
                   jal, 
                   jalr, 
                   immediate[31:30],
@@ -259,7 +261,8 @@ module Datapath(
                   forward_b, 
                   forward_store,
                   alusel}),
-        .data_out({em_auipc,
+        .data_out({em_rs2,
+                   em_auipc,
                    em_jal, 
                    em_jalr, 
                    em_immediate[31:30],
@@ -338,7 +341,7 @@ module Datapath(
         .dataout(memout) //its rd_data! //rd_EX_MEM
     );
     
-    assign meminputmuxout =  em_forward_store? rfwritedata: aluin_2;
+    assign meminputmuxout =  em_forward_store? rfwritedata : em_rs2;
  
    Register #(139) Pipeline_2 (
         .clk(clk),

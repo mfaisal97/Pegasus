@@ -2,24 +2,24 @@
 // author: @ahmedleithy
 /*******************************************************************
 *
-* Module: MemControl.v
-* Project: Pegasus
-* Author: Ahmed Leithy - Ahmed.leithym@aucegypt.edu
-* Description: This module controls all the internal control signals and coordinates the memory bank outputs. 
+* Module: module_name.v
+* Project: Project_Name
+* Author: name and email
+* Description: put your description here
 *
-* Change history: 
+* Change history:
 * 26/10/17 – Memory Control was initialized
-* 27/29/17 – Needed to edit the control signals.
-* 1/11/17 – Fixed store control signals
-* 6/11/17 - Edited the memory so that it can access instructions unaligned (for mid word)
-* 8/11/17 - Fixed memory instructions on unaligned locations
-
+* 1/11/17 – fix internal memory store signals
+* 6/11/17 - Change signals so that accesses to unaligned locations is correct
+* 8/11/17 - Fixed memory access signals for instructions on unaligned locations
+*
 **********************************************************************/
 `timescale 1ns/1ns
 `include "defines.v"
 
 module MemControl(
     input [31:0] address,
+    input [1:0] currenta,
     input [31:0] data,
     input unalignedword,
     input lw,
@@ -49,7 +49,7 @@ module MemControl(
                     address[1]&~address[0] ? bankdata2[7]:
                     ~address[1]&address[0] ? bankdata1[7]: bankdata0[7];
                     
-                    
+         /*           
     //write/read' signals for each bank                    
     assign bankwritereadbar[0]=sw|(sh&~address[1])|
                                 (sb&~address[1]&~address[0]);
@@ -63,6 +63,24 @@ module MemControl(
     assign savedata2 = sw ? data[23:16] : data[7:0];
     assign savedata3 = sw ? data[31:24] : (sh&address[1])?data[15:8]:data[7:0];
 
+*/
+    
+    
+     //write/read' signals for each bank                    
+   assign bankwritereadbar[0]=sw|(sh&~currenta[1])|
+                               (sb&~currenta[1]&~currenta[0]);
+   assign bankwritereadbar[1]=sw|(sh&~currenta[1])|(sb&~currenta[1]&currenta[0]);
+   assign bankwritereadbar[2]=sw|(sh&currenta[1])|(sb&currenta[1]&~currenta[0]);
+   assign bankwritereadbar[3]=sw|(sh&currenta[1])|(sb&currenta[1]&currenta[0]);
+
+   //data to be saved in each bank in case of storing
+   assign savedata0 = data[7:0];
+   assign savedata1 =  (sb&currenta[0]&~currenta[1]) ? data[7:0] : data[15:8];
+   assign savedata2 = sw ? data[23:16] : data[7:0];
+   assign savedata3 = sw ? data[31:24] : (sh&currenta[1])?data[15:8]:data[7:0];
+   
+   
+   
 
     //32 bit data out from memory based on load instruction
     assign dataout[7:0]= unalignedword ? bankdata2 : (lw | ((lh|lhu)&~address[1]) |     
