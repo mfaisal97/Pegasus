@@ -30,10 +30,12 @@ module CSR(
     input [31:0] PC,
     input [11:0] address,
     input [31:0] dataIn,
+    input [2:0] mipInput,
     input CSRwrite,
     output [31:0] CSRout,
     output [3:0] mieSignals,
-    output timerInterrupt
+    output timerInterrupt,
+    output [31:0] mepcout 
     );
     
 
@@ -74,8 +76,10 @@ module CSR(
     
     
     assign mieSignals = mie;
+    assign mepcout = mepc;
+
     //assign mepc = interrupt_indicator ? PC : ((address==`MEPC)&CSRwrite) ? dataIn : mepc;
-    
+    assign timerInterrupt = (mtimeOut == mtimecmp && mtimeOut!=0);
     always@(posedge clk) begin
         if(rst)begin
             mtimecmp <= `ZERO;
@@ -84,12 +88,15 @@ module CSR(
             mip <= `ZERO;
         end    
         else begin 
+            mip <= mipInput;
+            
             if(interrupt_indicator)
                 mepc <=PC;
             else if((address==`MEPC)&&CSRwrite)
                 mepc <= dataIn;
             else 
                 mepc<= mepc;
+         
                 
             
             if(CSRwrite)
@@ -97,8 +104,8 @@ module CSR(
                     mtimecmp <= dataIn;
                 else if(address == `MIE)
                     mie <= dataIn[3:0]; 
-                else if (address == `MIP)
-                    mip <= dataIn[2:0];   
+               // else if (address == `MIP)
+                 //   mip <= dataIn[2:0];   
                 else
                     mie <=mie;  
         end
