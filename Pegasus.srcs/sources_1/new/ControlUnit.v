@@ -26,6 +26,7 @@
 module ControlUnit (
     input [`IR_full_opcode] opcode,
     input [`IR_funct3] funct3,
+    input [`IR_csr] csr_code,
     output alu_src_two_sel,
     output mem_read,
     output mem_write,
@@ -41,7 +42,8 @@ module ControlUnit (
     output csr_src1_sel_rc,
     output csr_src2_sel,
     output ebreak_identifier,
-    output ecall_identifier
+    output ecall_identifier,
+    output mret_identifier
 );
 
 assign alu_src_two_sel = (opcode[`IR_opcode] == `OPCODE_Arith_I) || (opcode[`IR_opcode] == `OPCODE_Store) || (opcode[`IR_opcode] == `OPCODE_JALR) || (opcode == `OPCODE_Load_F) || (opcode[`IR_opcode] == `OPCODE_LUI) ;
@@ -58,6 +60,10 @@ assign csr_read_write = (opcode[`IR_opcode] == `OPCODE_SYSTEM) && (funct3[`F3_LE
 assign csr_src1_sel_imm = (opcode[`IR_opcode] == `OPCODE_SYSTEM) && funct3[`F3_Imm_BIT_LOC];
 assign csr_src1_sel_rc = (opcode[`IR_opcode] == `OPCODE_SYSTEM) && (funct3[`F3_LEAST_LOC] == `F3_LEAST_CSR_RC);
 assign csr_src2_sel = csr;
+assign ebreak_identifier = (opcode[`IR_opcode] == `OPCODE_SYSTEM) && (csr_code == `CSR_ADDR_ONE);
+assign ecall_identifier = (opcode[`IR_opcode] == `OPCODE_SYSTEM) && (csr_code == `CSR_ADDR_ZERO);
+assign mret_identifier =  (opcode[`IR_opcode] == `OPCODE_SYSTEM) && (csr_code == `CSR_ADDR_MRET) && (funct3 == `F3_CSR_ALL_BIT);
+
 endmodule
 
 
