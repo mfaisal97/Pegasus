@@ -63,7 +63,13 @@ module Datapath(
     wire em_csr_src1_sel_imm;
     wire em_csr_src1_sel_rc;
     wire em_csr_read_write;
-    wire em_csr;          
+    wire em_csr;
+              
+    wire [3:0] mie_csr_file_con_block;
+    wire time_int_file_con_block;
+    wire interrupt_indicator;
+    wire ebreak_identifier;
+    wire ecall_identifier;
                                    
     wire [`DATA_SIZE] pc;
     wire [`DATA_SIZE] pc4;
@@ -79,6 +85,10 @@ module Datapath(
     wire [`DATA_SIZE] rs2_muxout;
     wire [`DATA_SIZE] rs2_muxout_csr;
     wire [`DATA_SIZE] csr_data_out;
+    wire [`CSR_ADDR_SIZE] csr_addr;
+    wire [`CSR_ADDR_SIZE] wb_csr_addr;
+    wire [`CSR_ADDR_SIZE] em_csr_addr;
+    
     wire [`IR_rd] rd_addr;    
     wire [4:0] WB_addr;
     
@@ -228,7 +238,9 @@ module Datapath(
         .csr_read_write(csr_read_write),
         .csr_src1_sel_imm(csr_src1_sel_imm),
         .csr_src1_sel_rc(csr_src1_sel_rc),
-        .csr_src2_sel(csr_src2_sel)
+        .csr_src2_sel(csr_src2_sel),
+        .ebreak_identifier(ebreak_identifier),
+        .ecall_identifier(ecall_identifier)
     );
     
     assign write = wb_reg_write_back & ssignal; //was ~signal - added wb_mem_read
@@ -247,6 +259,35 @@ module Datapath(
         .port_one_data(rs1),
         .port_two_data(rs2)
     );
+    
+    assign csr_write_in =  wb_csr & ssignal;
+    assign csr_addr = csr_write_in ? wb_csr_addr : inst[`CSR_ADDR_LOCATION];
+    
+    CSR csr_file (
+        .clk(clk),
+        .rst(rst),
+        .interrupt_indicator(interrupt_indicator),
+        .instruction_retired(),
+        .PC(),
+        .address(csr_addr),
+        .dataIn(wb_memout),
+        .CSRwrite(csr_write_in),
+        .CSRout(csr_data_out),
+        .mieSignals(mie_csr_file_con_block),
+        .timerInterrupt(time_int_file_con_block)
+        );
+        
+    Concurrency_Block con_block(
+        .NMI(NMI),
+        .ECALL(ecall_identifier),
+        .EBREAK(ebreak_identifier),
+        .TMR(time_int_file_con_block),
+        .INT(status),
+        .MIE_output(mie_csr_file_con_block),
+        .interrupt_indicator(interrupt_indicator),
+        .handler_location(),
+        .MIP_input()
+        );
 
     
     assign rs2_muxout = alu_src_two_sel? em_immediate : rs2;
@@ -264,7 +305,7 @@ module Datapath(
         .forward_store(forward_store)
         );
         
-   Register #(247) Pipeline_1 (
+   Register #(259) Pipeline_1 (
         .clk(clk),
         .rst(rstsync),
         .load(~ssignal), //CHECK THIS!!//stayed the same
@@ -293,7 +334,8 @@ module Datapath(
                   csr_read_write,
                   csr_src1_sel_imm,
                   csr_src1_sel_rc,
-                  csr}),
+                  csr,
+                  inst[`CSR_ADDR_LOCATION]}),
         .data_out({em_rs2,
                    em_auipc,
                    em_jal, 
@@ -318,7 +360,8 @@ module Datapath(
                    em_csr_read_write,
                    em_csr_src1_sel_imm,
                    em_csr_src1_sel_rc,
-                   em_csr})
+                   em_csr,
+                   em_csr_addr})
     );
 
     MUX2x1 #(`THIRTY_TWO) forwardA  (
@@ -384,7 +427,7 @@ module Datapath(
     assign aluout_rs1 =  em_csr_read_write ? aluin_1 : aluout;
     assign memout_rs2 = em_csr ? aluin_2 : memout ; 
  
-   Register #(139) Pipeline_2 (
+   Register #(151) Pipeline_2 (
         .clk(clk),
         .rst(rstsync),
         .load(~ssignal), //CHECK THIS!! //was signal
@@ -397,9 +440,10 @@ module Datapath(
                   em_branch,
                   em_unconditionalbranch, 
                   em_rd_addr, 
-                  memout, 
+                  memout_rs2, 
                   aluout,
-                  em_csr}),
+                  em_csr,
+                  em_csr_addr}),
         .data_out({wb_auipc,
                    wb_lui,
                    wb_mem_read,
@@ -411,7 +455,8 @@ module Datapath(
                    wb_rd_addr, 
                    wb_memout, 
                    wb_aluout,
-                   wb_csr})
+                   wb_csr,
+                   wb_csr_addr})
     );
   
   //we dnt need lui or imm with us now bs keep it just n case
