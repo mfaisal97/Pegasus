@@ -4,7 +4,7 @@
 `timescale 1ns/1ns
 
 module Concurrency_Block(
-    input NIM, //0x10
+    input NMI, //0x10
     input ECALL, //0x20
     input EBREAK, //0x30
     input TMR, //0x40
@@ -18,7 +18,7 @@ module Concurrency_Block(
     wire enable_INT;
     wire enable_ECALL;
     always @(*) begin
-        if(NIM) 
+        if(NMI) 
             handler_location = {20'd0, 12'h10};
         else if (EBREAK)
             handler_location = {20'd0, 12'h30};
@@ -35,6 +35,6 @@ module Concurrency_Block(
     assign enable_INT = ~(MIE_output[1]|MIE_output[3]); 
     assign enable_ECALL = ~(MIE_output[2]|MIE_output[3]); 
     assign MIP_input = {ECALL&enable_ECALL, INT&enable_INT, TMR&enable_TMR};
-    assign interrupt_indicator = NIM | (ECALL&enable_ECALL) | EBREAK | (TMR&enable_TMR) | (INT&enable_INT);
+    assign interrupt_indicator = NMI | (ECALL&enable_ECALL) | EBREAK | (TMR&enable_TMR) | (INT&enable_INT);
 endmodule
 
