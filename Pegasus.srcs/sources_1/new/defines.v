@@ -58,6 +58,8 @@
 `define     F3_Imm_BIT_LOC              14
 `define     CSR_ADDR_LOCATION           31:20
 `define     CSR_ADDR_SIZE               11:0
+`define     CSR_ADDR_ONE                12'b1
+`define     CSR_ADDR_ZERO               12'b1
 
 `define     BR_BEQ                 3'b000
 `define     BR_BNE                 3'b001
