@@ -39,7 +39,9 @@ module ControlUnit (
     output csr_read_write,
     output csr_src1_sel_imm,
     output csr_src1_sel_rc,
-    output csr_src2_sel
+    output csr_src2_sel,
+    output ebreak_identifier,
+    output ecall_identifier
 );
 
 assign alu_src_two_sel = (opcode[`IR_opcode] == `OPCODE_Arith_I) || (opcode[`IR_opcode] == `OPCODE_Store) || (opcode[`IR_opcode] == `OPCODE_JALR) || (opcode == `OPCODE_Load_F) || (opcode[`IR_opcode] == `OPCODE_LUI) ;
