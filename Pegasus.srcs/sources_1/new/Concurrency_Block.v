@@ -3,7 +3,7 @@
 
 `timescale 1ns/1ns
 
-module Concurrency_Block(
+module Concurrency_Block( 
     input NMI, //0x10
     input ECALL, //0x20
     input EBREAK, //0x30
@@ -34,7 +34,7 @@ module Concurrency_Block(
     assign enable_TMR = ~(MIE_output[0]|MIE_output[3]); 
     assign enable_INT = ~(MIE_output[1]|MIE_output[3]); 
     assign enable_ECALL = ~(MIE_output[2]|MIE_output[3]); 
-    assign MIP_input = {ECALL&enable_ECALL, INT&enable_INT, TMR&enable_TMR};
+    assign MIP_input = {ECALL&enable_ECALL, INT&enable_INT | NMI, TMR&enable_TMR};
     assign interrupt_indicator = NMI | (ECALL&enable_ECALL) | EBREAK | (TMR&enable_TMR) | (INT&enable_INT);
 endmodule
 
