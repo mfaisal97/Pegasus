@@ -90,7 +90,7 @@ module Memory(
     MemBank Bank3(.clk(clk),.address(address[31:2]),
                 .datain(bank3datain), 
                 .writereadbar(bankwritereadbar[3]),.dataout(bankout[31:24]));  
-    reg [31:0] memt [0:127];
+    reg [31:0] memt [0:150];
     integer i;
 
  /*
@@ -111,9 +111,9 @@ module Memory(
   */
   initial  
         begin
-            $readmemh("C:/Users/mfaisal/Pegasus/Resources/CSRTest.txt", memt);
+            $readmemh("C:/Users/ahmed.leithym/Documents/pegasus/Resources/InterruptHandler.txt", memt);
             //$readmemh("C:/Users/mfaisal/Pegasus/Resources/test2.txt", memt);
-            for(i=0;i<128;i = i+1) begin
+            for(i=0;i<151;i = i+1) begin
                 Bank0.mem[i] = memt[i][31:24];
                 Bank1.mem[i] = memt[i][23:16];
                 Bank2.mem[i] = memt[i][15:8];
