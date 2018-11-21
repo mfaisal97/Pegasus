@@ -111,7 +111,8 @@ module Memory(
   */
   initial  
         begin
-            $readmemh("C:/Users/ahmed.leithym/Downloads/Pegasus-master/Pegasus-master/Resources/testC2.txt", memt);
+            $readmemh("C:/Users/mfaisal/Pegasus/Resources/CSRTest.txt", memt);
+            //$readmemh("C:/Users/mfaisal/Pegasus/Resources/test2.txt", memt);
             for(i=0;i<128;i = i+1) begin
                 Bank0.mem[i] = memt[i][31:24];
                 Bank1.mem[i] = memt[i][23:16];
