@@ -49,7 +49,7 @@ module ControlUnit (
 assign alu_src_two_sel = (opcode[`IR_opcode] == `OPCODE_Arith_I) || (opcode[`IR_opcode] == `OPCODE_Store) || (opcode[`IR_opcode] == `OPCODE_JALR) || (opcode == `OPCODE_Load_F) || (opcode[`IR_opcode] == `OPCODE_LUI) ;
 assign mem_read = (opcode == `OPCODE_Load_F);
 assign mem_write = (opcode[`IR_opcode] == `OPCODE_Store);
-assign reg_write_back = (opcode[`IR_opcode] == `OPCODE_Arith_I ) || (opcode[`IR_opcode] == `OPCODE_Arith_R) || (opcode[`IR_opcode] == `OPCODE_Load) || (opcode[`IR_opcode] == `OPCODE_JAL) || (opcode[`IR_opcode] == `OPCODE_JALR) || (opcode[`IR_opcode] == `OPCODE_AUIPC) || (opcode[`IR_opcode] == `OPCODE_LUI);
+assign reg_write_back = (opcode[`IR_opcode] == `OPCODE_Arith_I ) || (opcode[`IR_opcode] == `OPCODE_Arith_R) || (opcode[`IR_opcode] == `OPCODE_Load) || (opcode[`IR_opcode] == `OPCODE_JAL) || (opcode[`IR_opcode] == `OPCODE_JALR) || (opcode[`IR_opcode] == `OPCODE_AUIPC) || (opcode[`IR_opcode] == `OPCODE_LUI) || (csr);
 assign branch = (opcode[`IR_opcode] == `OPCODE_Branch);
 assign jal = (opcode[`IR_opcode] == `OPCODE_JAL);
 assign jalr = (opcode[`IR_opcode] == `OPCODE_JALR);
