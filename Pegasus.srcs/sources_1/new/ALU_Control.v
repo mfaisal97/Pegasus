@@ -33,12 +33,12 @@ module ALU_Control (
             `OPCODE_Branch      :       ALU_Sel = {`F3_ADD, `ONE_1};              
             `OPCODE_LUI         :       ALU_Sel = `ALU_PASS;
             `OPCODE_SYSTEM      :       begin
-                case (Inst[`F3_LEAST_LOC])
-                    `F3_LEAST_CSR_RS:       ALU_Sel = `ALU_OR;    
-                    `F3_LEAST_CSR_RC:       ALU_Sel = `ALU_AND;
-                    default         :       ALU_Sel = `DEFAULT_OP;
-                endcase
-                end
+                                            case (Inst[`F3_LEAST_LOC])
+                                                `F3_LEAST_CSR_RS :       ALU_Sel = `ALU_OR;    
+                                                `F3_LEAST_CSR_RC :       ALU_Sel = `ALU_AND;
+                                                 default         :       ALU_Sel = `DEFAULT_OP;
+                                            endcase
+                                        end
             default             :       ALU_Sel = `DEFAULT_OP;
         endcase
     end
