@@ -225,6 +225,7 @@ module Datapath(
     ControlUnit cunit(
         .opcode({inst[`IR_opcode], inst[1:0]}),
         .funct3(inst[`IR_funct3]),
+        .csr_code(inst[`IR_csr]),
         .alu_src_two_sel(alu_src_two_sel),
         .mem_read(mem_read),
         .mem_write(mem_write),
@@ -265,7 +266,7 @@ module Datapath(
     
     CSR csr_file (
         .clk(clk),
-        .rst(rst),
+        .rst(rstsync),
         .interrupt_indicator(interrupt_indicator),
         .instruction_retired(),
         .PC(),
@@ -290,7 +291,7 @@ module Datapath(
         );
 
     
-    assign rs2_muxout = alu_src_two_sel? em_immediate : rs2;
+    assign rs2_muxout = alu_src_two_sel? immediate : rs2;
     assign rs2_muxout_csr = csr_src2_sel ? csr_data_out : rs2_muxout;
 
 
@@ -326,7 +327,7 @@ module Datapath(
                   unconditionalbranch, 
                   inst[`IR_rd], 
                   rs1, 
-                  rs2_muxout, 
+                  rs2_muxout_csr, 
                   forward_a, 
                   forward_b, 
                   forward_store,
