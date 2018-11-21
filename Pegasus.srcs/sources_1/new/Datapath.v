@@ -395,7 +395,7 @@ module Datapath(
         assign pipline1rst = rstsync || (interruptEdge2 && mipWire[1]);
         
         
-   Register #(317) Pipeline_1 (
+   Register #(299) Pipeline_1 (
         .clk(clk),
         .rst(pipline1rst),
         .load(~ssignal), //CHECK THIS!!//stayed the same
