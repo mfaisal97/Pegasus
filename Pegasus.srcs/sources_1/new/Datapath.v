@@ -236,6 +236,7 @@ module Datapath(
     ControlUnit cunit(
         .opcode({inst[`IR_opcode], inst[1:0]}),
         .funct3(inst[`IR_funct3]),
+        .csr_code(inst[`IR_csr]),
         .alu_src_two_sel(alu_src_two_sel),
         .mem_read(mem_read),
         .mem_write(mem_write),
@@ -297,7 +298,7 @@ module Datapath(
     
     CSR csr_file (
         .clk(clk),
-        .rst(rst),
+        .rst(rstsync),
         .interrupt_indicator(interruptEdge),
         .instruction_retired(instructionRet),
         .PC(mepcWire),
@@ -339,7 +340,7 @@ module Datapath(
             );
 
     
-    assign rs2_muxout = alu_src_two_sel? em_immediate : rs2;
+    assign rs2_muxout = alu_src_two_sel? immediate : rs2;
     assign rs2_muxout_csr = csr_src2_sel ? csr_data_out : rs2_muxout;
 
 
@@ -358,7 +359,7 @@ module Datapath(
         wire pipeline1rst;
         assign pipline1rst = rstsync || (interruptEdge2 && mipWire[1]);
         
-   Register #(326) Pipeline_1 (
+   Register #(317) Pipeline_1 (
         .clk(clk),
         .rst(pipline1rst),
         .load(~ssignal), //CHECK THIS!!//stayed the same
@@ -491,7 +492,7 @@ module Datapath(
     assign aluout_rs1 =  em_csr_read_write ? aluin_1 : aluout;
     assign memout_rs2 = em_csr ? aluin_2 : memout ; 
  
-   Register #(151) Pipeline_2 (
+   Register #(152) Pipeline_2 (
         .clk(clk),
         .rst(rstsync),
         .load(~ssignal), //CHECK THIS!! //was signal
