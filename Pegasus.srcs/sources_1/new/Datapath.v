@@ -301,6 +301,9 @@ module Datapath(
     wire forceBitInterrupt;
     wire timerSolved; 
    
+   
+   
+   
     assign forceBitReset = rstsync | em_mret&ssignal;
     
     Register #(1) ForceBit(
@@ -322,6 +325,18 @@ module Datapath(
                                 && ssignal;
     
     assign timerSolved = em_mret & interrupt_being_handled[2];
+    wire [`DATA_SIZE] em_rs2_muxout_w_hazard;
+    wire [`DATA_SIZE] em_rs2_muxout_forwarded;
+    assign em_rs2_muxout = em_csr && wb_csr && (em_csr_addr == wb_csr_addr) ? em_rs2_muxout_forwarded : em_rs2_muxout_w_hazard;
+    
+    //assign csr_data_out = em_csr&&(inst[`CSR_ADDR_LOCATION]== em_csr_addr) ? (aluout_rs1) :  csr_data_out_w_hazard;
+    Register #(32) CSRForward(
+                   .clk(clk),
+                   .rst(rstsync),
+                   .load(ssignal),
+                   .data_in(aluout_rs1),
+                   .data_out(em_rs2_muxout_forwarded)
+           );
     
     CSR csr_file (
         .clk(clk),
@@ -448,7 +463,7 @@ module Datapath(
                    em_unconditionalbranch, 
                    em_rd_addr, 
                    em_rs1, 
-                   em_rs2_muxout, 
+                   em_rs2_muxout_w_hazard, 
                    em_forward_a, 
                    em_forward_b, 
                    em_forward_store,
@@ -470,10 +485,13 @@ module Datapath(
     assign aluin_1_imm = em_csr_src1_sel_imm ? immediate : aluin_1;
     assign aluin_1_imm_xor = em_csr_src1_sel_rc ? aluin_1_imm ^ `ONES_DATA  : aluin_1_imm; 
     
+    wire em_forward_b_csr;
+    assign em_forward_b_csr = em_forward_b && (~em_csr_src1_sel_imm);
+    
     MUX2x1 #(`THIRTY_TWO) forwardB  (
         .A(em_rs2_muxout),//rs2
         .B(rfwritedata), //pipline 2
-        .sel(em_forward_b),
+        .sel(em_forward_b_csr),
         .out(aluin_2)
     ); 
 
