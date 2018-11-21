@@ -27,7 +27,7 @@ module ALU (
     input [`ALUSEL_SIZE] sel, 
     input [`DATA_SIZE] A, 
     input [`DATA_SIZE] B, 
-    output [`DATA_SIZE] out, 
+    output reg [`DATA_SIZE] out, 
     output ZeroFlag,
     output Cout,
     output SignedBit,
@@ -55,28 +55,22 @@ module ALU (
     assign SLT_ALU = {`ZERO_31, $signed(A) < $signed(B)};
     assign SLTU_ALU = {`ZERO_31, A < B};
     assign {Cout, AddSubALU} = sel[`ZERO_1]? (A + B_Comp + `ONE_1) : A + B;
-    
-    MUX16x1 Multiplexer (
-        .ADD(AddSubALU), 
-        .SUB(AddSubALU), 
-        .SLL(SLL_ALU), 
-        .PASS(B), 
-        .SLT(SLT_ALU), 
-        .F(`ZERO_32),
-        .SLTU(SLTU_ALU), 
-        .H(`ZERO_32), 
-        .XOR(XorALU), 
-        .J(`ZERO_32), 
-        .SRL(SRL_ALU), 
-        .SRA(SRA_ALU), 
-        .OR_OP(OrALU),
-        .N(`ZERO_32), 
-        .AND_OP(AndALU), 
-        .P(`ZERO_32), 
-        .sel(sel), 
-        .out(out)
-        );
-  
+    always @(*) begin
+        case(sel) 
+            `ALU_ADD        :       out = AddSubALU;
+            `ALU_SUB        :       out = AddSubALU;
+            `ALU_SLL        :       out = SLL_ALU;
+            `ALU_SLT        :       out = SLT_ALU;
+            `ALU_SLTU       :       out = SLTU_ALU;
+            `ALU_XOR        :       out = XorALU;
+            `ALU_SRL        :       out = SRL_ALU;
+            `ALU_SRA        :       out = SRA_ALU;
+            `ALU_OR         :       out = OrALU;
+            `ALU_AND        :       out = AndALU;
+            `ALU_PASS       :       out = B;
+            default         :       out = `DEFAULT_OP;
+        endcase
+    end
     assign ZeroFlag = ~|AddSubALU;
     assign SignedBit = AddSubALU[`LAST_BIT];
     assign Overflow = A[`LAST_BIT]^B_Comp[`LAST_BIT]^AddSubALU[`LAST_BIT]^Cout;
