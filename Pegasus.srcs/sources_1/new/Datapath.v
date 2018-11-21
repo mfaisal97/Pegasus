@@ -305,7 +305,7 @@ module Datapath(
         .forward_store(forward_store)
         );
         
-   Register #(259) Pipeline_1 (
+   Register #(250) Pipeline_1 (
         .clk(clk),
         .rst(rstsync),
         .load(~ssignal), //CHECK THIS!!//stayed the same
@@ -427,7 +427,7 @@ module Datapath(
     assign aluout_rs1 =  em_csr_read_write ? aluin_1 : aluout;
     assign memout_rs2 = em_csr ? aluin_2 : memout ; 
  
-   Register #(151) Pipeline_2 (
+   Register #(152) Pipeline_2 (
         .clk(clk),
         .rst(rstsync),
         .load(~ssignal), //CHECK THIS!! //was signal
