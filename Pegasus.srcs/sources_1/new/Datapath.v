@@ -70,6 +70,8 @@ module Datapath(
     wire interrupt_indicator;
     wire ebreak_identifier;
     wire ecall_identifier;
+    wire mret_identifier;
+    wire [2:0] mipWire;
                                    
     wire [`DATA_SIZE] pc;
     wire [`DATA_SIZE] pc4;
@@ -102,6 +104,7 @@ module Datapath(
     wire [`DATA_SIZE] em_rs1;
     wire [`DATA_SIZE] em_rs2_muxout;
     wire [`DATA_SIZE] wb_auipcdata;
+    wire [`DATA_SIZE] em_handlerpc;
     wire [4:0] rs2in;
     //execmem
     wire forward_a;
@@ -126,7 +129,9 @@ module Datapath(
     wire c;
     wire zf;
     wire branch_taken;
-    
+    wire em_mret;
+    wire em_ebreak;
+    wire em_ecall;
     //writeback
     wire [`DATA_SIZE] rfwritedata;
     wire [`DATA_SIZE] wb_pc4;
@@ -145,7 +150,13 @@ module Datapath(
     wire [`ALUSEL_SIZE] alusel;
     wire [`ALUSEL_SIZE] em_alusel;
     wire [`DATA_SIZE] pipepc,pipepc4;
-    
+    wire [`DATA_SIZE] mepcWire;
+    wire [`DATA_SIZE] InterrRegWire;
+    wire interruptEdge, interruptEdge2;
+    wire [`DATA_SIZE] handlerpc;
+    wire [`DATA_SIZE] mepcout;
+    wire [`DATA_SIZE] em_mepcout;
+    wire instructionRet;
     //----------------- FIRST STAGE - FETCH-DECODE --------------------------------
     
     //module instantiation
@@ -174,7 +185,7 @@ module Datapath(
     
  
    
-    assign nextpc = em_jalr ? aluout : (branch_taken | em_jal? branch_PC: pc4); //2nd stage//check check
+   assign nextpc = (interruptEdge2 && mipWire[1]) ? handlerpc : em_jalr ? aluout : (branch_taken | em_jal? branch_PC: pc4); //2nd stage//check check
     //branch, unconditional
     //assign pc4 = pc + 2; // +4 became + 2-----------------------------------------------------------------------
     PC_Incrementor pc4_2(
@@ -183,7 +194,7 @@ module Datapath(
                 .PC_Next(pc4)
             );
 
-    assign unconditionalbranch = jal | jalr;
+    assign unconditionalbranch = jal | jalr | mret_identifier | ecall_identifier | ebreak_identifier;
     
     Register #(`THIRTY_TWO) pcreg (
         .clk(clk),
@@ -225,7 +236,6 @@ module Datapath(
     ControlUnit cunit(
         .opcode({inst[`IR_opcode], inst[1:0]}),
         .funct3(inst[`IR_funct3]),
-        .csr_code(inst[`IR_csr]),
         .alu_src_two_sel(alu_src_two_sel),
         .mem_read(mem_read),
         .mem_write(mem_write),
@@ -241,7 +251,8 @@ module Datapath(
         .csr_src1_sel_rc(csr_src1_sel_rc),
         .csr_src2_sel(csr_src2_sel),
         .ebreak_identifier(ebreak_identifier),
-        .ecall_identifier(ecall_identifier)
+        .ecall_identifier(ecall_identifier),
+        .mret_identifier(mret_identifier)
     );
     
     assign write = wb_reg_write_back & ssignal; //was ~signal - added wb_mem_read
@@ -264,18 +275,40 @@ module Datapath(
     assign csr_write_in =  wb_csr & ssignal;
     assign csr_addr = csr_write_in ? wb_csr_addr : inst[`CSR_ADDR_LOCATION];
     
+    
+    
+    Register #(`THIRTY_TWO) interruptPC (
+            .clk(clk),
+            .rst(rstsync),
+            .load(~ssignal),
+            .data_in(pc),
+            .data_out(InterrRegWire)
+        );
+        
+    assign mepcWire =  mipWire[1] ? InterrRegWire : em_pc4 ;
+    assign instructionRet =  (  em_mem_read || 
+                                em_mem_write ||
+                                em_reg_write_back || 
+                                em_branch || 
+                                em_unconditionalbranch ||
+                                em_ebreak ||
+                                em_ecall) 
+                                && ssignal;
+    
     CSR csr_file (
         .clk(clk),
-        .rst(rstsync),
-        .interrupt_indicator(interrupt_indicator),
-        .instruction_retired(),
-        .PC(),
+        .rst(rst),
+        .interrupt_indicator(interruptEdge),
+        .instruction_retired(instructionRet),
+        .PC(mepcWire),
         .address(csr_addr),
         .dataIn(wb_memout),
         .CSRwrite(csr_write_in),
         .CSRout(csr_data_out),
         .mieSignals(mie_csr_file_con_block),
-        .timerInterrupt(time_int_file_con_block)
+        .mipInput(mipWire),
+        .timerInterrupt(time_int_file_con_block),
+        .mepcout(mepcout)
         );
         
     Concurrency_Block con_block(
@@ -286,12 +319,27 @@ module Datapath(
         .INT(status),
         .MIE_output(mie_csr_file_con_block),
         .interrupt_indicator(interrupt_indicator),
-        .handler_location(),
-        .MIP_input()
+        .handler_location(handlerpc),
+        .MIP_input(mipWire)
         );
+        
+        
+     RisingEdgeDetector edgedetector(
+            .clk(clk),
+            .rst(rst),
+            .signal(interrupt_indicator),
+            .signal_edge(interruptEdge)
+            );
+            
+    RisingEdgeDetector2Cycle edgedetector2cycle(
+            .clk(clk),
+            .rst(rst),
+            .signal(interrupt_indicator),
+            .signal_edge(interruptEdge2)
+            );
 
     
-    assign rs2_muxout = alu_src_two_sel? immediate : rs2;
+    assign rs2_muxout = alu_src_two_sel? em_immediate : rs2;
     assign rs2_muxout_csr = csr_src2_sel ? csr_data_out : rs2_muxout;
 
 
@@ -306,11 +354,20 @@ module Datapath(
         .forward_store(forward_store)
         );
         
-   Register #(250) Pipeline_1 (
+        
+        wire pipeline1rst;
+        assign pipline1rst = rstsync || (interruptEdge2 && mipWire[1]);
+        
+   Register #(326) Pipeline_1 (
         .clk(clk),
-        .rst(rstsync),
+        .rst(pipline1rst),
         .load(~ssignal), //CHECK THIS!!//stayed the same
         .data_in({
+                  handlerpc,
+                  mret_identifier,
+                  ecall_identifier,
+                  ebreak_identifier,
+                  mepcout,
                   rs2,
                   auipc,
                   jal, 
@@ -337,7 +394,13 @@ module Datapath(
                   csr_src1_sel_rc,
                   csr,
                   inst[`CSR_ADDR_LOCATION]}),
-        .data_out({em_rs2,
+        .data_out({
+                    em_handlerpc,
+                   em_mret,
+                   em_ecall,
+                   em_ebreak,
+                   em_mepcout,
+                   em_rs2,
                    em_auipc,
                    em_jal, 
                    em_jalr, 
@@ -395,7 +458,7 @@ module Datapath(
         .SignedBit(s),
         .Overflow(v)
     );
-    assign branch_PC = em_pc + em_immediate;
+    assign branch_PC =  em_mret ? em_mepcout :  (em_ebreak | em_ecall) ? em_handlerpc : (em_pc + em_immediate);
 
     BranchControlUnit bcu(
         .branch(em_branch),
@@ -428,7 +491,7 @@ module Datapath(
     assign aluout_rs1 =  em_csr_read_write ? aluin_1 : aluout;
     assign memout_rs2 = em_csr ? aluin_2 : memout ; 
  
-   Register #(152) Pipeline_2 (
+   Register #(151) Pipeline_2 (
         .clk(clk),
         .rst(rstsync),
         .load(~ssignal), //CHECK THIS!! //was signal
@@ -473,8 +536,9 @@ module Datapath(
 
     assign rs2in = write ? wb_rd_addr: inst[24:20];
 
-    MUX2x1 #(`THIRTY_TWO) irmux(memout,`NOP,branch_taken,fetchedinst); //FLUSH SIGNAL 
-
+    //MUX2x1 #(`THIRTY_TWO) irmux(memout,`NOP, branch_taken,fetchedinst); //FLUSH SIGNAL 
+    assign fetchedinst =  branch_taken|interruptEdge2 ? `NOP: memout; 
+   
 
     
 endmodule
