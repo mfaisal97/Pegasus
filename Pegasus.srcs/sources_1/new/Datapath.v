@@ -157,6 +157,7 @@ module Datapath(
     wire [`DATA_SIZE] mepcout;
     wire [`DATA_SIZE] em_mepcout;
     wire instructionRet;
+    
     //----------------- FIRST STAGE - FETCH-DECODE --------------------------------
     
     //module instantiation
@@ -285,6 +286,30 @@ module Datapath(
             .data_in(pc),
             .data_out(InterrRegWire)
         );
+        wire [4:0]interrupt_being_handled;
+        wire [4:0]interrupt_will_be_handled;
+    
+    Register #(5) waitingInterrupts(
+            .clk(clk),
+            .rst(rstsync),
+            .load(interruptEdge),
+            .data_in(interrupt_will_be_handled),
+            .data_out(interrupt_being_handled)
+    ); 
+    
+    wire forceBitReset; 
+    wire forceBitInterrupt;
+    wire timerSolved; 
+   
+    assign forceBitReset = rstsync | em_mret&ssignal;
+    
+    Register #(1) ForceBit(
+                .clk(clk),
+                .rst(forceBitReset),
+                .load(interrupt_indicator),
+                .data_in(interrupt_indicator),
+                .data_out(forceBitInterrupt)
+        ); 
         
     assign mepcWire =  mipWire[1] ? InterrRegWire : em_pc4 ;
     assign instructionRet =  (  em_mem_read || 
@@ -296,11 +321,14 @@ module Datapath(
                                 em_ecall) 
                                 && ssignal;
     
+    assign timerSolved = em_mret & interrupt_being_handled[2];
+    
     CSR csr_file (
         .clk(clk),
         .rst(rstsync),
         .interrupt_indicator(interruptEdge),
         .instruction_retired(instructionRet),
+        .timerSolved(timerSolved),
         .PC(mepcWire),
         .address(csr_addr),
         .dataIn(wb_memout),
@@ -318,24 +346,26 @@ module Datapath(
         .EBREAK(ebreak_identifier),
         .TMR(time_int_file_con_block),
         .INT(status),
+        .int_index(interrupt_index),
         .MIE_output(mie_csr_file_con_block),
         .interrupt_indicator(interrupt_indicator),
         .handler_location(handlerpc),
-        .MIP_input(mipWire)
+        .MIP_input(mipWire),
+        .all_interrupts(interrupt_will_be_handled) //5bits
         );
         
         
      RisingEdgeDetector edgedetector(
             .clk(clk),
             .rst(rst),
-            .signal(interrupt_indicator),
+            .signal(forceBitInterrupt),
             .signal_edge(interruptEdge)
             );
             
     RisingEdgeDetector2Cycle edgedetector2cycle(
             .clk(clk),
             .rst(rst),
-            .signal(interrupt_indicator),
+            .signal(forceBitInterrupt),
             .signal_edge(interruptEdge2)
             );
 
@@ -358,6 +388,7 @@ module Datapath(
         
         wire pipeline1rst;
         assign pipline1rst = rstsync || (interruptEdge2 && mipWire[1]);
+        
         
    Register #(317) Pipeline_1 (
         .clk(clk),

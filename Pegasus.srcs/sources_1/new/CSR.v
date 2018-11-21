@@ -25,6 +25,7 @@
 module CSR(
     input clk,
     input rst,
+    input timerSolved,
     input interrupt_indicator,
     input instruction_retired,
     input [31:0] PC,
@@ -41,10 +42,13 @@ module CSR(
 
     wire [31:0] mcycleOut,mtimeOut, minstretOut;
     wire pulse;
+    wire timerrst;
+    
+    assign timerrst = timerSolved | rst;
     
     timer t(
             .clk(clk),
-            .rst(rst),
+            .rst(timerrst),
             .pulse(pulse)
         );
         
@@ -57,7 +61,7 @@ module CSR(
      
      counter mtime (
              .clk(clk),
-             .rst(rst),
+             .rst(timerrst),
              .en(pulse),
              .count(mtimeOut)
           );
@@ -79,7 +83,9 @@ module CSR(
     assign mepcout = mepc;
 
     //assign mepc = interrupt_indicator ? PC : ((address==`MEPC)&CSRwrite) ? dataIn : mepc;
-    assign timerInterrupt = (mtimeOut == mtimecmp && mtimeOut!=0);
+    
+    assign timerInterrupt = (mtimeOut >= mtimecmp && mtimeOut!=0);
+    
     always@(posedge clk) begin
         if(rst)begin
             mtimecmp <= `ZERO;
