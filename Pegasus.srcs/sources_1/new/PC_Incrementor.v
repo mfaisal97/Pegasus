@@ -14,13 +14,12 @@
 **********************************************************************/
 
 `timescale 1ns / 1ps
+`include "defines.v"
 module PC_Incrementor(
             input not_compressed, 
-            input[31:0] PC,
-            output[31:0] PC_Next
+            input[`REGISTERS_RANGE] PC,
+            output[`REGISTERS_RANGE] PC_Next
         );
-
  assign PC_Next = not_compressed ? PC + 4 : PC + 2;
-
 endmodule
 
