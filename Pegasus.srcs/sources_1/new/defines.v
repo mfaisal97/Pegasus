@@ -60,7 +60,7 @@
 `define     CSR_ADDR_LOCATION           31:20
 `define     CSR_ADDR_SIZE               11:0
 `define     CSR_ADDR_ONE                12'b1
-`define     CSR_ADDR_ZERO               12'b1
+`define     CSR_ADDR_ZERO               12'b0
 `define     CSR_ADDR_MRET               12'h302
 
 
