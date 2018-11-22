@@ -498,7 +498,6 @@ module Datapath(
 
     BranchControlUnit bcu(
         .branch(em_branch),
-        .ssignal(`ONE_1),
         .unconditionalbranch(em_unconditionalbranch),
         .func3(em_func3),
         .zeroflag(zf),

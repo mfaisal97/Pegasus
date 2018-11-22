@@ -16,7 +16,6 @@
 
 module BranchControlUnit(
     input branch,
-    input ssignal,
     input unconditionalbranch,
     input [`IR_funct3] func3,
     input zeroflag,
