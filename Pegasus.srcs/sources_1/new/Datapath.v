@@ -186,7 +186,7 @@ module Datapath(
     
  
    
-   assign nextpc = (interruptEdge2 && mipWire[1]) ? handlerpc : em_jalr ? aluout : (branch_taken | em_jal? branch_PC: pc4); //2nd stage//check check
+   assign nextpc = (interruptEdge2 && (mipWire[1]|mipWire[0])) ? handlerpc : em_jalr ? aluout : (branch_taken | em_jal? branch_PC: pc4); //2nd stage//check check
     //branch, unconditional
     //assign pc4 = pc + 2; // +4 became + 2-----------------------------------------------------------------------
     PC_Incrementor pc4_2(
@@ -314,7 +314,8 @@ module Datapath(
                 .data_out(forceBitInterrupt)
         ); 
         
-    assign mepcWire =  mipWire[1] ? InterrRegWire : em_pc4 ;
+    assign mepcWire =  mipWire[1]|mipWire[0] ? InterrRegWire : em_pc4 ;
+    
     assign instructionRet =  (  em_mem_read || 
                                 em_mem_write ||
                                 em_reg_write_back || 
@@ -331,7 +332,7 @@ module Datapath(
     CSR csr_file (
         .clk(clk),
         .rst(rstsync),
-        .interrupt_indicator(interruptEdge),
+        .interrupt_indicator(interruptEdge|ecall_identifier|ebreak_identifier),
         .instruction_retired(instructionRet),
         .timerSolved(timerSolved),
         .PC(mepcWire),
@@ -373,11 +374,9 @@ module Datapath(
             .signal(forceBitInterrupt),
             .signal_edge(interruptEdge2)
             );
-
     
     assign rs2_muxout = alu_src_two_sel? immediate : rs2;
     assign rs2_muxout_csr = csr_src2_sel ? csr_data_out : rs2_muxout;
-
 
     ForwardingUnit fu(
         .opcode(inst[6:2]),
@@ -392,7 +391,7 @@ module Datapath(
         
         
         wire pipeline1rst;
-        assign pipline1rst = rstsync || (interruptEdge2 && mipWire[1]);
+        assign pipline1rst = rstsync || (interruptEdge2 && (mipWire[1]|mipWire[0]));
         
         
    Register #(299) Pipeline_1 (

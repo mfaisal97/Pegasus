@@ -52,6 +52,8 @@ module Concurrency_Block(
     assign enable_INT = ~(MIE_output[1]|MIE_output[3]); 
     assign enable_ECALL = ~(MIE_output[2]|MIE_output[3]); 
     assign MIP_input = {ECALL&enable_ECALL, INT&enable_INT | NMI, TMR&enable_TMR};
-    assign interrupt_indicator = NMI | (ECALL&enable_ECALL) | EBREAK | (TMR&enable_TMR) | (INT&enable_INT);
+    //assign interrupt_indicator = NMI | (ECALL&enable_ECALL) | EBREAK | (TMR&enable_TMR) | (INT&enable_INT);
+    assign interrupt_indicator = NMI | (TMR&enable_TMR) | (INT&enable_INT);
+
 endmodule
 
