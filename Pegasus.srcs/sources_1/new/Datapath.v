@@ -327,7 +327,7 @@ module Datapath(
     
     assign timerSolved = em_mret & interrupt_being_handled[2];
     wire [`DATA_SIZE] csr_data_out_w_hazard;
-    assign csr_data_out = em_csr&&(inst[`CSR_ADDR_LOCATION]== em_csr_addr) ? (aluout_rs1) :  csr_data_out_w_hazard;
+    assign csr_data_out = em_csr && (inst[`CSR_ADDR_LOCATION]== em_csr_addr) ? (aluout_rs1) :  csr_data_out_w_hazard;
     
     CSR csr_file (
         .clk(clk),
