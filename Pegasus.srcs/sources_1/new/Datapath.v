@@ -187,8 +187,9 @@ module Datapath(
  
    
    //   assign nextpc = (interruptEdge2 && (mipWire[1]|mipWire[0])) ? handlerpc : em_jalr ? aluout : (branch_taken | em_jal? branch_PC: pc4); //2nd stage//check check
+//   assign nextpc = (interruptEdge2 && (mipWire[1]|mipWire[0]) && ~(|interrupt_being_handled)) ? handlerpc : em_jalr ? aluout : (branch_taken | em_jal? branch_PC: pc4); //2nd stage//check check
 
-   assign nextpc = (interruptEdge2 && (mipWire[1]|mipWire[0]) && ~(|interrupt_being_handled)) ? handlerpc : em_jalr ? aluout : (branch_taken | em_jal? branch_PC: pc4); //2nd stage//check check
+   assign nextpc = (interruptEdge2 && ~(|interrupt_being_handled)) ? handlerpc : em_jalr ? aluout : (branch_taken | em_jal? branch_PC: pc4); //2nd stage//check check
     //branch, unconditional
     //assign pc4 = pc + 2; // +4 became + 2-----------------------------------------------------------------------
     PC_Incrementor pc4_2(
@@ -288,6 +289,7 @@ module Datapath(
             .data_in(pc),
             .data_out(InterrRegWire)
         );
+        
         wire [4:0]interrupt_being_handled;
         wire [4:0]interrupt_will_be_handled;
         wire rising_edge_falling;
@@ -311,7 +313,7 @@ module Datapath(
             .clk(clk),
             .rst(waitingIntReset),
             //.load(interruptEdge),
-            .load((rising_edge_falling|ebreak_identifier|ecall_identifier)&~(|interrupt_being_handled)),
+            .load((rising_edge_falling|(ebreak_identifier|ecall_identifier)&~interruptEdge2)&~(|interrupt_being_handled)),
             .data_in(interrupt_will_be_handled),
             .data_out(interrupt_being_handled)
     ); 
@@ -326,7 +328,7 @@ module Datapath(
                 .data_out(forceBitInterrupt)
         ); 
         
-     assign mepcWire =  mipWire[1] ? InterrRegWire : pc ;
+     assign mepcWire =  ((interruptEdge2)|mipWire[1]|mipWire[0])&~(ebreak_identifier & mipWire[0]) ? InterrRegWire : pc;
 
     //assign mepcWire =  mipWire[1]|mipWire[0] ? InterrRegWire : em_pc4 ;
 
@@ -343,7 +345,7 @@ module Datapath(
     wire [`DATA_SIZE] csr_data_out_w_hazard;
     assign csr_data_out = em_csr&&(inst[`CSR_ADDR_LOCATION]== em_csr_addr) ? (aluout_rs1) :  csr_data_out_w_hazard;
     wire readmepc;
-    assign readmepc = (interruptEdge|ecall_identifier|ebreak_identifier)&~(|interrupt_being_handled);
+    assign readmepc = (interruptEdge2|ecall_identifier|ebreak_identifier)&~(|interrupt_being_handled)&~ssignal;
     CSR csr_file (
         .clk(clk),
         .rst(rstsync),

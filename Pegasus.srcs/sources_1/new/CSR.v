@@ -14,13 +14,7 @@
 **********************************************************************/
 
 `include "defines.v"
-`define     MCYCLE    32'hb00
-`define     MTIME    32'hb01
-`define     MINSTRET    32'hb02
-`define     MTIMECMP    32'hb03
-`define     MEPC    32'h341
-`define     MIE    32'h304
-`define     MIP    32'h344
+
 
 module CSR(
     input clk,
@@ -46,7 +40,7 @@ module CSR(
     
     assign timerrst = timerSolved | rst;
     
-    timer #(10) t (
+    timer #(20) t (
             .clk(clk),
             .rst(timerrst),
             .pulse(pulse)
@@ -90,7 +84,7 @@ module CSR(
         if(rst)begin
             mtimecmp <= `ONE_ONE_BIT;
             mepc <= `ZERO;
-            mie <= `ZERO;
+            mie <= `FOUR_ONES;
             mip <= `ZERO;
         end    
         else begin 
