@@ -186,7 +186,9 @@ module Datapath(
     
  
    
-   assign nextpc = (interruptEdge2 && (mipWire[1]|mipWire[0])) ? handlerpc : em_jalr ? aluout : (branch_taken | em_jal? branch_PC: pc4); //2nd stage//check check
+   //   assign nextpc = (interruptEdge2 && (mipWire[1]|mipWire[0])) ? handlerpc : em_jalr ? aluout : (branch_taken | em_jal? branch_PC: pc4); //2nd stage//check check
+
+   assign nextpc = (interruptEdge2 && (mipWire[1]|mipWire[0]) && ~(|interrupt_being_handled)) ? handlerpc : em_jalr ? aluout : (branch_taken | em_jal? branch_PC: pc4); //2nd stage//check check
     //branch, unconditional
     //assign pc4 = pc + 2; // +4 became + 2-----------------------------------------------------------------------
     PC_Incrementor pc4_2(
@@ -288,23 +290,33 @@ module Datapath(
         );
         wire [4:0]interrupt_being_handled;
         wire [4:0]interrupt_will_be_handled;
+        wire rising_edge_falling;
+
+    FallingEdgeDetector fd(
+        .clk(clk),
+        .rst(rst),
+        .signal(interruptEdge2),
+        .signal_edge(rising_edge_falling)
+        );
+        
+    wire forceBitReset; 
+    wire forceBitInterrupt;
+    wire timerSolved;  
+    wire waitingIntReset;
+
+    assign forceBitReset = rstsync | em_mret&ssignal;
+    assign waitingIntReset = rstsync | em_mret&~ssignal;
     
     Register #(5) waitingInterrupts(
             .clk(clk),
-            .rst(rstsync),
-            .load(interruptEdge),
+            .rst(waitingIntReset),
+            //.load(interruptEdge),
+            .load((rising_edge_falling|ebreak_identifier|ecall_identifier)&~(|interrupt_being_handled)),
             .data_in(interrupt_will_be_handled),
             .data_out(interrupt_being_handled)
     ); 
     
-    wire forceBitReset; 
-    wire forceBitInterrupt;
-    wire timerSolved; 
    
-   
-   
-   
-    assign forceBitReset = rstsync | em_mret&ssignal;
     
     Register #(1) ForceBit(
                 .clk(clk),
@@ -314,8 +326,10 @@ module Datapath(
                 .data_out(forceBitInterrupt)
         ); 
         
-    assign mepcWire =  mipWire[1]|mipWire[0] ? InterrRegWire : em_pc4 ;
-    
+     assign mepcWire =  mipWire[1] ? InterrRegWire : pc ;
+
+    //assign mepcWire =  mipWire[1]|mipWire[0] ? InterrRegWire : em_pc4 ;
+
     assign instructionRet =  (  em_mem_read || 
                                 em_mem_write ||
                                 em_reg_write_back || 
@@ -328,11 +342,12 @@ module Datapath(
     assign timerSolved = em_mret & interrupt_being_handled[2];
     wire [`DATA_SIZE] csr_data_out_w_hazard;
     assign csr_data_out = em_csr&&(inst[`CSR_ADDR_LOCATION]== em_csr_addr) ? (aluout_rs1) :  csr_data_out_w_hazard;
-    
+    wire readmepc;
+    assign readmepc = (interruptEdge|ecall_identifier|ebreak_identifier)&~(|interrupt_being_handled);
     CSR csr_file (
         .clk(clk),
         .rst(rstsync),
-        .interrupt_indicator(interruptEdge|ecall_identifier|ebreak_identifier),
+        .interrupt_indicator(readmepc),
         .instruction_retired(instructionRet),
         .timerSolved(timerSolved),
         .PC(mepcWire),
@@ -391,9 +406,8 @@ module Datapath(
         
         
         wire pipeline1rst;
-        assign pipline1rst = rstsync || (interruptEdge2 && (mipWire[1]|mipWire[0]));
-        
-        
+        //assign pipline1rst = rstsync || (interruptEdge2 && (mipWire[1]|mipWire[0]));
+        assign pipline1rst = rstsync || (interruptEdge2&~(|interrupt_being_handled));
    Register #(299) Pipeline_1 (
         .clk(clk),
         .rst(pipline1rst),
@@ -573,7 +587,7 @@ module Datapath(
     assign rs2in = write ? wb_rd_addr: inst[24:20];
 
     //MUX2x1 #(`THIRTY_TWO) irmux(memout,`NOP, branch_taken,fetchedinst); //FLUSH SIGNAL 
-    assign fetchedinst =  branch_taken|interruptEdge2 ? `NOP: memout; 
+    assign fetchedinst =  branch_taken|(interruptEdge2&~(|interrupt_being_handled)) ? `NOP: memout; 
    
 
     

@@ -46,7 +46,7 @@ module CSR(
     
     assign timerrst = timerSolved | rst;
     
-    timer t(
+    timer #(10) t (
             .clk(clk),
             .rst(timerrst),
             .pulse(pulse)
@@ -88,7 +88,7 @@ module CSR(
     
     always@(posedge clk) begin
         if(rst)begin
-            mtimecmp <= `ZERO;
+            mtimecmp <= `ONE_ONE_BIT;
             mepc <= `ZERO;
             mie <= `ZERO;
             mip <= `ZERO;
