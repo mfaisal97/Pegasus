@@ -471,7 +471,7 @@ module Datapath(
         .out(aluin_1)
     );
     
-    assign aluin_1_imm = em_csr_src1_sel_imm ? immediate : aluin_1;
+    assign aluin_1_imm = em_csr_src1_sel_imm ? em_immediate : aluin_1;
     assign aluin_1_imm_xor = em_csr_src1_sel_rc ? aluin_1_imm ^ `ONES_DATA  : aluin_1_imm; 
     
     MUX2x1 #(`THIRTY_TWO) forwardB  (
@@ -523,7 +523,7 @@ module Datapath(
     );
     
     assign meminputmuxout =  em_forward_store ? rfwritedata : em_rs2;
-    assign aluout_rs1 =  em_csr_read_write ? aluin_1 : aluout;
+    assign aluout_rs1 =  em_csr_read_write ? aluin_1_imm : aluout;
     assign memout_rs2 = em_csr ? aluin_2 : memout ; 
  
    Register #(152) Pipeline_2 (
