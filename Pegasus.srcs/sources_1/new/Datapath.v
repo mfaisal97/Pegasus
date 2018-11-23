@@ -343,7 +343,8 @@ module Datapath(
     
     assign timerSolved = em_mret & interrupt_being_handled[2];
     wire [`DATA_SIZE] csr_data_out_w_hazard;
-    assign csr_data_out = em_csr&&(inst[`CSR_ADDR_LOCATION]== em_csr_addr) ? (aluout_rs1) :  csr_data_out_w_hazard;
+    assign csr_data_out = em_csr && (inst[`CSR_ADDR_LOCATION]== em_csr_addr) ? (aluout_rs1) :  csr_data_out_w_hazard;
+    
     wire readmepc;
     assign readmepc = (interruptEdge2|ecall_identifier|ebreak_identifier)&~(|interrupt_being_handled)&~ssignal;
     CSR csr_file (
@@ -487,7 +488,7 @@ module Datapath(
         .out(aluin_1)
     );
     
-    assign aluin_1_imm = em_csr_src1_sel_imm ? immediate : aluin_1;
+    assign aluin_1_imm = em_csr_src1_sel_imm ? em_immediate : aluin_1;
     assign aluin_1_imm_xor = em_csr_src1_sel_rc ? aluin_1_imm ^ `ONES_DATA  : aluin_1_imm; 
     
     MUX2x1 #(`THIRTY_TWO) forwardB  (
@@ -514,7 +515,6 @@ module Datapath(
 
     BranchControlUnit bcu(
         .branch(em_branch),
-        .ssignal(`ONE_1),
         .unconditionalbranch(em_unconditionalbranch),
         .func3(em_func3),
         .zeroflag(zf),
@@ -540,7 +540,7 @@ module Datapath(
     );
     
     assign meminputmuxout =  em_forward_store ? rfwritedata : em_rs2;
-    assign aluout_rs1 =  em_csr_read_write ? aluin_1 : aluout;
+    assign aluout_rs1 =  em_csr_read_write ? aluin_1_imm : aluout;
     assign memout_rs2 = em_csr ? aluin_2 : memout ; 
  
    Register #(152) Pipeline_2 (
