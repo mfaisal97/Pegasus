@@ -20,6 +20,7 @@ module Concurrency_Block(
     wire enable_INT;
     wire enable_ECALL;
     
+    
     always @(*) begin
         if(NMI) begin
             handler_location = {20'd0, 12'h10};
@@ -48,9 +49,12 @@ module Concurrency_Block(
             all_interrupts = {{5{`ZERO_ONE_BIT}}};
             end
     end
-    assign enable_TMR = ~(MIE_output[0]|MIE_output[3]); 
+    /*assign enable_TMR = ~(MIE_output[0]|MIE_output[3]); 
     assign enable_INT = ~(MIE_output[1]|MIE_output[3]); 
-    assign enable_ECALL = ~(MIE_output[2]|MIE_output[3]); 
+    assign enable_ECALL = ~(MIE_output[2]|MIE_output[3]); */
+    assign enable_TMR = (MIE_output[0]|MIE_output[3]); 
+    assign enable_INT = (MIE_output[1]|MIE_output[3]); 
+    assign enable_ECALL = (MIE_output[2]|MIE_output[3]);
     assign MIP_input = {ECALL&enable_ECALL, INT&enable_INT | NMI, TMR&enable_TMR};
     //assign interrupt_indicator = NMI | (ECALL&enable_ECALL) | EBREAK | (TMR&enable_TMR) | (INT&enable_INT);
     assign interrupt_indicator = NMI | (TMR&enable_TMR) | (INT&enable_INT);

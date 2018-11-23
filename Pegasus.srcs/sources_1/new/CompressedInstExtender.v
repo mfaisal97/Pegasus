@@ -93,7 +93,7 @@ always @(*) begin
                             case(compressed_inst[`COMPRESSED_ADDRESS_RS2])
                                 `COMPRESSED_ADDR_ZERO:  begin
                                     case(compressed_inst[`COMPRESSED_ADDRESS_RS1])
-                                        `COMPRESSED_ADDR_ZERO:          extended_inst = {`CSR_ADDR_ZERO, `COMPRESSED_ADDR_ZERO, `F3_CSR_ALL_BIT, `COMPRESSED_ADDR_ZERO, `OPCODE_SYSTEM, `NOT_COMPRESSED}; //EBREAK
+                                        `COMPRESSED_ADDR_ZERO:          extended_inst = {`CSR_ADDR_ONE, `COMPRESSED_ADDR_ZERO, `F3_CSR_ALL_BIT, `COMPRESSED_ADDR_ZERO, `OPCODE_SYSTEM, `NOT_COMPRESSED}; //EBREAK
                                         default:                        extended_inst = {12'b0, compressed_inst[`COMPRESSED_ADDRESS_RS1], `F3_JALR, `COMPRESSED_ADDR_ONE, `OPCODE_JALR, `NOT_COMPRESSED};  //jalr
                                     endcase
                                 end

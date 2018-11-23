@@ -102,7 +102,14 @@
 `define     ONE_ONE_BIT            1'b1
 `define     THIRTY_TWO             32
 `define     NOP                    32'b000000000000_00000_000_00000_0010011
-
+`define     MCYCLE    32'hb00
+`define     MTIME    32'hb01
+`define     MINSTRET    32'hb02
+`define     MTIMECMP    32'hb03
+`define     MEPC    32'h341
+`define     MIE    32'h304
+`define     MIP    32'h344
+`define     FOUR_ONES     4'b1111
 //What Areeg Added!
 `define     GENERATE_START         5'd1
 `define     GENERATE_END           5'd31
