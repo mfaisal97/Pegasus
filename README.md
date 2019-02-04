@@ -1,4 +1,4 @@
-#Pegasus:
+# Pegasus:
 Pegasus is a pipeline implementation of the instruction set RISC-V 32 I with the extension
 C. Pegasus is the name of the famous Mythical horse in the Greek culture, the child of the
 Olympian god Poseidon. Pegasus supports all RISCV-32I instructions including compressed
